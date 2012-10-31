@@ -1,4 +1,5 @@
 $MOD186
+$ep
 NAME TIMER
 ; Main program for uPD70208 microcomputer system
 ;
@@ -28,6 +29,7 @@ DATA_SEG	SEGMENT
 	T_COUNT		DB	2FH
 	T_COUNT_SET	DB	2FH
 	REC_MESS	DB	10,13,'Period of timer0 =     '
+	BCD	    DB 	3FH,06H,5BH,4FH,66H,6DH,7DH,07H,7FH,06FH
 DATA_SEG	ENDS
 
 
@@ -51,8 +53,46 @@ START:
 ; ^^^^^^^^^^^^^^^^^  Start of User Main Routine  ^^^^^^^^^^^^^^^^^^
     call set_timer2
                  STI
+				 
+	MOV DX, 83H
+	MOV AL, 80H
+	OUT DX, AL
+	MOV BX, DATA_SEG
+	MOV DS,BX
+	
 
-NEXT:     
+
+		 
+NEXT: 
+	MOV AL, 11111110B;
+	;CALL FAR PTR DISPLAY_BCD
+	MOV DX, 0100H
+	OUT DX, AL
+	MOV AL, DS:BCD[1]
+	MOV DX, 0180H
+	OUT DX, AL
+	mov al,0H
+	OUT DX, AL
+	MOV AL, 11111101B;
+	;CALL FAR PTR DISPLAY_BCD
+	MOV DX, 0100H
+	OUT DX, AL
+	MOV AL, DS:BCD[2]
+	MOV DX, 0180H
+	OUT DX, AL
+	mov al,0H
+	OUT DX, AL
+	
+	MOV AL, 11111011B;
+	;CALL FAR PTR DISPLAY_BCD
+	MOV DX, 0100H
+	OUT DX, AL
+	MOV AL, DS:BCD[3]
+	MOV DX, 0180H
+	OUT DX, AL
+	mov al,0H
+	OUT DX, AL
+
 JMP NEXT
 
 ; ^^^^^^^^^^^^^^^ End of User main routine ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -123,13 +163,6 @@ T_NEXT0:
 		LOOP	T_NEXT0
 
 T_NEXT1:
-		MOV DX, 0100H
-		MOV AX, 01H
-		OUT DX, AX
-		
-		MOV DX, 0180H
-		MOV AX, 07EH
-		OUT DX, AX
 		
 		POP	CX
 		POP	BX

@@ -1,9 +1,9 @@
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    17:41:53  10/18/;2  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    10:35:05  10/24/;2  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE TIMER
 OBJECT MODULE PLACED IN KEYBOARD.OBJ
-ASSEMBLER INVOKED BY:  C:\USERS\A0074933\DOCUME~1\13\ASM86.EXE KEYBOARD.ASM
+ASSEMBLER INVOKED BY:  C:\CASHIER\ASM86.EXE KEYBOARD.ASM
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -58,7 +58,7 @@ LOC  OBJ                  LINE     SOURCE
 002E 32
 002F 33
 0030 34
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    17:41:53  10/18/;2  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    10:35:05  10/24/;2  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -118,7 +118,7 @@ LOC  OBJ                  LINE     SOURCE
 0022 FB                     82                     STI
                             83     
 0023                        84     NEXT: 
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    17:41:53  10/18/;2  PAGE    3
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    10:35:05  10/24/;2  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -178,7 +178,7 @@ LOC  OBJ                  LINE     SOURCE
                            137                     
                            138     
 006E                       139     INIT:           
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    17:41:53  10/18/;2  PAGE    4
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    10:35:05  10/24/;2  PAGE    4
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -238,7 +238,7 @@ LOC  OBJ                  LINE     SOURCE
                            191                                                                     
 00A7                       192     NUMBERS:
                            193                     
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    17:41:53  10/18/;2  PAGE    5
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    10:35:05  10/24/;2  PAGE    5
 
 
 LOC  OBJ                  LINE     SOURCE

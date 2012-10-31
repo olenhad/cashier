@@ -312,13 +312,13 @@ TIMER2_INTR:
 		PUSH 	AX
 		
 ; Action to be taken on timer0 interrupt to be written by user
-		;CALL	FAR PTR TIMER2_ACTION
+		CALL	FAR PTR TIMER2_ACTION
               
 		POP	AX		;return interrupt
                 ;RESET_INT_CTL
-        ;        MOV DX, EOI
-        ;        MOV AX, 8
-        ;        OUT DX, AL
+                MOV DX, EOI
+                MOV AX, 8
+                OUT DX, AL
 		IRET
 ; **************** End of TIMER2_INTR service routine ************************
 
