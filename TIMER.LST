@@ -1,9 +1,9 @@
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    15:10:35  10/25/;2  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    16:24:56  11/07/;2  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE TIMER
 OBJECT MODULE PLACED IN TIMER.OBJ
-ASSEMBLER INVOKED BY:  F:\CASHIER\ASM86.EXE TIMER.ASM
+ASSEMBLER INVOKED BY:  E:\CASHIER\ASM86.EXE TIMER.ASM
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -58,7 +58,7 @@ LOC  OBJ                  LINE     SOURCE
                             37     
                             38     ASSUME  CS:CODE_SEG, SS:STACK_SEG
                             39     
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    15:10:35  10/25/;2  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    16:24:56  11/07/;2  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -118,7 +118,7 @@ LOC  OBJ                  LINE     SOURCE
 004B A01700                 92                     MOV     AL,DS:T_COUNT_SET       ;print current period of timer0
 004E 9A0000----     E       93                     CALL    FAR PTR PRINT_2HEX
 0053                        94     S_RET:
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    15:10:35  10/25/;2  PAGE    3
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    16:24:56  11/07/;2  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
