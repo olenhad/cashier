@@ -1,4 +1,4 @@
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    21:26:27  10/25/;2  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    14:50:55  10/31/;2  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE TIMER
@@ -58,7 +58,7 @@ LOC  OBJ                  LINE     SOURCE
 0033 5B
 0034 4F
 0035 66
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    21:26:27  10/25/;2  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    14:50:55  10/31/;2  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -118,7 +118,7 @@ LOC  OBJ                  LINE     SOURCE
                             83     
                             84     ;; EXPECTS 16 BIT BCD ENCODED NUMBER IN AX.  
 0032                        85     DISPLAY_BCD     PROC    FAR
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    21:26:27  10/25/;2  PAGE    3
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    14:50:55  10/31/;2  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -178,7 +178,7 @@ LOC  OBJ                  LINE     SOURCE
 0064 8AD8                  138             MOV BL,AL
 0066 80FB0A                139             CMP BL,10
 0069 7D03                  140             JGE GREATER_THAN_10
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    21:26:27  10/25/;2  PAGE    4
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    14:50:55  10/31/;2  PAGE    4
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -238,7 +238,7 @@ LOC  OBJ                  LINE     SOURCE
 00A5 8A4718                193     S_NEXT1:        MOV     AL,DS:REC_MESS[BX]      ;print message
 00A8 9A0000----     E      194                     call    FAR ptr print_char
 00AD 43                    195                     INC     BX
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    21:26:27  10/25/;2  PAGE    5
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    14:50:55  10/31/;2  PAGE    5
 
 
 LOC  OBJ                  LINE     SOURCE
