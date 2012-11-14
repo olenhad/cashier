@@ -5,7 +5,7 @@ OUTPUT FILE: TIMER.ABS
 CONTROLS SPECIFIED IN INVOCATION COMMAND:
    TO TIMER.ABS ST(START) AD(SEGMENTS(CODE_SEG(
   100H))) 
-DATE:  11/08/;2  TIME:  20:23:51
+DATE:  11/14/;2  TIME:  17:11:24
 
 
 SYMBOL TABLE OF MODULE TIMER
@@ -30,6 +30,6 @@ START     STOP     LENGTH ALIGN NAME            CLASS           OVERLAY
 00100H   001B9H     00BAH   G   CODE_SEG                        
 00200H   0022BH     002CH   G   ??SEG                           
 00230H   0032FH     0100H   G   STACK_SEG                       
-00330H   00381H     0052H   G   DATA_SEG                        
+00330H   00386H     0057H   G   DATA_SEG                        
 00390H   00413H     0084H   G   INT_RAM_AREA                    
 00420H   00557H     0138H   G   MISC_ROUTINE                    
