@@ -1,9 +1,9 @@
-8086/87/88/186 MACRO ASSEMBLER    MISC                                                     17:11:24  11/14/;2  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    MISC                                                     18:31:52  11/15/;2  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE MISC
 OBJECT MODULE PLACED IN MISC.OBJ
-ASSEMBLER INVOKED BY:  E:\CASHIER\ASM86.EXE MISC.ASM
+ASSEMBLER INVOKED BY:  G:\CASHIER\ASM86.EXE MISC.ASM
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -58,7 +58,7 @@ LOC  OBJ                  LINE     SOURCE
 0080 ????????               48             SOFT0           DD      ? ;TYPE 32
 0084 ????????               49             SOFT1           DD      ? ;TYPE 33
 0088 ????????               50             SOFT2           DD      ?
-8086/87/88/186 MACRO ASSEMBLER    MISC                                                     17:11:24  11/14/;2  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    MISC                                                     18:31:52  11/15/;2  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -118,7 +118,7 @@ LOC  OBJ                  LINE     SOURCE
 0007 BAA4FF           =1   100              MOV DX, PCSBA
 000A B80300           =1   101              MOV AX, 0003H ; Peripheral starting address 00H no READY, No Waits
 000D EE               =1   102              OUT DX, AL
-8086/87/88/186 MACRO ASSEMBLER    MISC                                                     17:11:24  11/14/;2  PAGE    3
+8086/87/88/186 MACRO ASSEMBLER    MISC                                                     18:31:52  11/15/;2  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -178,7 +178,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1   155     
                       =1   156     ; Timer control Unit
                       =1   157       
-8086/87/88/186 MACRO ASSEMBLER    MISC                                                     17:11:24  11/14/;2  PAGE    4
+8086/87/88/186 MACRO ASSEMBLER    MISC                                                     18:31:52  11/15/;2  PAGE    4
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -238,7 +238,7 @@ LOC  OBJ                  LINE     SOURCE
                            210     ; Enable serial interrupts
 0006 B003                  211                     MOV     AL,S_INT_ENA
 0008 E601                  212                     OUT     SIER,AL
-8086/87/88/186 MACRO ASSEMBLER    MISC                                                     17:11:24  11/14/;2  PAGE    5
+8086/87/88/186 MACRO ASSEMBLER    MISC                                                     18:31:52  11/15/;2  PAGE    5
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -298,7 +298,7 @@ LOC  OBJ                  LINE     SOURCE
 0034 06                    265                     PUSH    ES
                            266     
 0035 50                    267                     PUSH    AX
-8086/87/88/186 MACRO ASSEMBLER    MISC                                                     17:11:24  11/14/;2  PAGE    6
+8086/87/88/186 MACRO ASSEMBLER    MISC                                                     18:31:52  11/15/;2  PAGE    6
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -358,7 +358,7 @@ LOC  OBJ                  LINE     SOURCE
 008E                       320     Set_timer2      proc Far
 008E 50                    321             push ax
 008F 52                    322             push dx
-8086/87/88/186 MACRO ASSEMBLER    MISC                                                     17:11:24  11/14/;2  PAGE    7
+8086/87/88/186 MACRO ASSEMBLER    MISC                                                     18:31:52  11/15/;2  PAGE    7
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -368,7 +368,7 @@ LOC  OBJ                  LINE     SOURCE
 0093 BA60FF                325             mov dx, T2_CNT;
 0096 EE                    326             OUT DX, AL
                            327     
-0097 B860EA                328             MOV AX, 60000;
+0097 B87017                328             MOV AX, 6000;
 009A BA62FF                329             MOV DX, T2_CA;
 009D EE                    330             OUT DX, AL
                            331     
@@ -418,7 +418,7 @@ LOC  OBJ                  LINE     SOURCE
 00BD BA22FF                374                     MOV DX, EOI
 00C0 B80C00                375                     MOV AX, 12
 00C3 EE                    376                     OUT DX, AL
-8086/87/88/186 MACRO ASSEMBLER    MISC                                                     17:11:24  11/14/;2  PAGE    8
+8086/87/88/186 MACRO ASSEMBLER    MISC                                                     18:31:52  11/15/;2  PAGE    8
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -478,7 +478,7 @@ LOC  OBJ                  LINE     SOURCE
 0125 5A                    429                     POP     DX 
 0126 5B                    430                     POP     BX                      ;return serial interrupt
 0127 58                    431                     POP     AX
-8086/87/88/186 MACRO ASSEMBLER    MISC                                                     17:11:24  11/14/;2  PAGE    9
+8086/87/88/186 MACRO ASSEMBLER    MISC                                                     18:31:52  11/15/;2  PAGE    9
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -491,20 +491,22 @@ LOC  OBJ                  LINE     SOURCE
                            437     ; **************** Start of TIMER0_INTR service routine ******************
 0129                       438     TIMER2_INTR:
 0129 50                    439                     PUSH    AX
-                           440                     
+012A 52                    440                     PUSH DX
                            441     ; Action to be taken on timer0 interrupt to be written by user
-012A 9A0000----     E      442                     CALL    FAR PTR TIMER2_ACTION
+012B 9A0000----     E      442                     CALL    FAR PTR TIMER2_ACTION
                            443                   
-012F 58                    444                     POP     AX              ;return interrupt
+                           444                                     ;return interrupt
                            445                     ;RESET_INT_CTL
 0130 BA22FF                446                     MOV DX, EOI
 0133 B80800                447                     MOV AX, 8
 0136 EE                    448                     OUT DX, AL
-0137 CF                    449                     IRET
-                           450     ; **************** End of TIMER2_INTR service routine ************************
-                           451     
-----                       452     MISC_ROUTINE    ENDS
+0137 5A                    449                     POP DX
+0138 58                    450                     POP AX
+0139 CF                    451                     IRET
+                           452     ; **************** End of TIMER2_INTR service routine ************************
                            453     
-                           454     END
+----                       454     MISC_ROUTINE    ENDS
+                           455     
+                           456     END
 
 ASSEMBLY COMPLETE, NO ERRORS FOUND

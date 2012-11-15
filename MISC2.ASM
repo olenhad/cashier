@@ -18,7 +18,7 @@ NAME MISC
 public	print_char, print_2hex, iodefine, set_timer2
 extrn 	serial_rec_action:far, timer2_action:far
 
-INT_VEC_SEG	SEGMENT		AT 	0H
+INT_VEC_SEG	SEGMENT		AT 	0H ;Important: wont work for any other address
 ; Define the interrupt vector locations
 ; System reserved interrupts
 		ORG	0000H
@@ -108,7 +108,7 @@ IODEFINE	ENDP
 
 
 
-; ----------------Start of procedure PRINT_2HEX ------------------------
+; ----------------Start of procedure PRINT_2HEX ------------------------ Any value sent over will appear as HEX 
 PRINT_2HEX 	PROC	FAR
 	QUE_BASE	EQU	OFFSET QUEUE_TRANS
 ; The byte to be printed as 2 HEX number is put into AL.
@@ -190,7 +190,7 @@ DONE:
 		RET
 CHAR2HEX	ENDP
 
-Set_timer2      proc Far
+Set_timer2      proc Far ; 2 MHz.
 	push ax
 	push dx
 	;Initialize Timer2	
@@ -198,7 +198,7 @@ Set_timer2      proc Far
 	mov dx, T2_CNT;
 	OUT DX, AL
 
-	MOV AX, 6000;
+	MOV AX, 60000;
 	MOV DX, T2_CA;
 	OUT DX, AL
 
@@ -214,6 +214,31 @@ Set_timer2      proc Far
 
 ret
 Set_timer2 endp
+
+Set_timer0     proc Far
+	push ax
+	push dx
+	;Initialize Timer2	
+	mov ax, 0;
+	mov dx, T0_CNT;
+	OUT DX, AL
+
+	MOV AX, 40000; No of increments * 2 Mhz =  50 ms
+	MOV DX, T0_CA;
+	OUT DX, AL
+
+	MOV AX,0E001H
+	MOV DX, T0_CON
+	OUT DX, AL
+
+	MOV DX, TIMER_CTRL
+	MOV AL, 02H
+	OUT DX, AL
+	pop dx
+	pop ax
+
+ret
+Set_timer0 endp
 ; ************************************************************************
 ;			INTERRUPT ROUTINES				 *
 ; ************************************************************************
@@ -235,7 +260,7 @@ SERIAL_INTR:
 
                	               
 		IN	AL,IIR			;read in serial INT ID
-                AND     AL,00000111B
+                AND     AL,00000111B ;Pull all bits to 0, execpt 0,1,2 (the THRE interrupt bits)
 		CMP     AL,00000100B		;check if rx interrupt
 		JE	RECEIVE_INTR
 
@@ -258,16 +283,16 @@ RECEIVE_INTR:
 		IN	AL,SRB			
 ; Information received will be used by user routine
 ; Action to be taken will be contained in SERIAL_REC_ACTION
-		CALL	FAR PTR SERIAL_REC_ACTION
+		CALL	FAR PTR SERIAL_REC_ACTION ; This function is invoked when a character is recieved.
 		
 		MOV DX, EOI
-                MOV AX, 12
+                MOV AX, 12 ;DO NOT CHANGE
                 OUT DX, AL
 		POP     DX
 		POP	BX			;false serial interrupt
 		POP	AX
 		IRET
-
+;Transmit interrupt handler. Manages a circular buffer
 TRANSMIT_INTR:
                
 		PUSH	ES			;save ES
@@ -307,23 +332,35 @@ L_TX3:
 
 
 
-; **************** Start of TIMER0_INTR service routine ******************
+; **************** Start of TIMER2_INTR service routine ******************
 TIMER2_INTR:
 		PUSH 	AX
-		PUSH DX
-; Action to be taken on timer0 interrupt to be written by user
+		
+; Action to be taken on timer2 interrupt to be written by user
 		CALL	FAR PTR TIMER2_ACTION
               
-				;return interrupt
+		POP	AX		;return interrupt
                 ;RESET_INT_CTL
                 MOV DX, EOI
                 MOV AX, 8
                 OUT DX, AL
-		POP DX
-		POP AX
 		IRET
 ; **************** End of TIMER2_INTR service routine ************************
 
+; **************** Start of TIMER0_INTR service routine ******************
+TIMER0_INTR:
+		PUSH 	AX
+		
+; Action to be taken on timer0 interrupt to be written by user
+		CALL	FAR PTR TIMER0_ACTION
+              
+		POP	AX		;return interrupt
+                ;RESET_INT_CTL
+                MOV DX, EOI
+                MOV AX, 8
+                OUT DX, AL
+		IRET
+; **************** End of TIMER2_INTR service routine ************************
 MISC_ROUTINE	ENDS
 
 END
