@@ -1,9 +1,9 @@
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    17:11:24  11/14/;2  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    04:04:38  11/29/;2  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE TIMER
 OBJECT MODULE PLACED IN NETWORK.OBJ
-ASSEMBLER INVOKED BY:  E:\CASHIER\ASM86.EXE NETWORK.ASM
+ASSEMBLER INVOKED BY:  F:\ASM86.EXE NETWORK.ASM
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -58,7 +58,7 @@ LOC  OBJ                  LINE     SOURCE
 0042 50524943452052
      454356
 004C (8                     34             CUR_PRICE       DB      8 DUP(?)
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    17:11:24  11/14/;2  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    04:04:38  11/29/;2  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -67,155 +67,258 @@ LOC  OBJ                  LINE     SOURCE
      )
 0054 00                     35             CUR_INDEX       DB      0
 0055 00                     36             NET_STATE       DB      0
-0056 61                     37             ADDRESS         DB      'a'
-                            38             ;0 => READY
-                            39             ;1 => SELECTED
-                            40             ;2 => BUFFERING
+0056 6261                   37             ADDRESS         DW      'ab'
+0058 00                     38             ADDR_INCOM_COUNT      DB      0
+0059 00                     39             ADDR_COUNT      DB      0
+005A (4                     40             ADDR_BUFFER     DB      4 DUP(?)
+     ??
+     )
                             41             
-----                        42     DATA_SEG        ENDS
-  0000                      43     NET_READY EQU 0
-  0001                      44     NET_SELECTED EQU 1
-  0002                      45     NET_BUFFERING EQU 2
-                            46     
-----                        47     CODE_SEG        SEGMENT
-                            48     
-                            49             PUBLIC          START
-                            50     
-                            51     ASSUME  CS:CODE_SEG, SS:STACK_SEG
-                            52     
-0000                        53     START:
-                            54     ;initialize stack area
-0000 B8----         R       55                     MOV     AX,STACK_SEG            
-0003 8ED0                   56                     MOV     SS,AX
-0005 368B260001             57                     MOV     SP,TOS
-                            58     
-                            59     ; Initialize the on-chip pheripherals
-000A 9A0000----     E       60                     CALL    FAR PTR IODEFINE
-                            61                     
-                            62     
-                            63     
-                            64     ; ^^^^^^^^^^^^^^^^^  Start of User Main Routine  ^^^^^^^^^^^^^^^^^^
-000F 9A0000----     E       65         call set_timer2
-0014 FB                     66                      STI
-                            67     
-0015                        68     NEXT:     
-0015 EBFE                   69     JMP NEXT
+                            42             ;; network state machine:
+                            43             ;; READY
+                            44             ;;  |
+                            45             ;; ` -> NET_PREADDR_BUFFERING
+                            46             ;; ``` -> NET_ADDR_RECIEVING (A)
+                            47             ;; 0023H
+                            48             ;;      |
+                            49             ;;     /  \
+                            50             ;; myaddr?  return READY + NACK
+                            51             ;;   |
+                            52             ;;  NET_SELECTED (transmit BARCODE+ Quantity)
+                            53             ;;   |
+                            54             ;;  NET_BUFFERING -> '1'*PRICE_LEN -> CUR_PRICE UPDATED ->ACK CUR_PRICE
+                            55             ;; return READY
+----                        56     DATA_SEG        ENDS
+                            57             
+  0000                      58     NET_READY EQU 0
+  0001                      59     NET_PREADDR_BUFFERING EQU 1
+  0002                      60     NET_ADDR_RECIEVING EQU 2
+  0003                      61     NET_SELECTED EQU 3
+  0004                      62     NET_BUFFERING EQU 4
+  0002                      63     ADDR_LEN EQU 2
+  004E                      64     NACK    EQU     'N'
+  0060                      65     NET_PREADDR_CHAR EQU '`'
+  0003                      66     NET_PREADDR_LEN  EQU 3
+  000F                      67     NET_PAYLOAD_LEN  EQU 15
+  0006                      68     PRICE_LEN EQU 6
+----                        69     CODE_SEG        SEGMENT
                             70     
-                            71     ; ^^^^^^^^^^^^^^^ End of User main routine ^^^^^^^^^^^^^^^^^^^^^^^^^
+                            71             PUBLIC          START
                             72     
-                            73     
-0017                        74     SERIAL_REC_ACTION       PROC    FAR
-0017 51                     75                     PUSH    CX
-0018 53                     76                     PUSH    BX
-0019 1E                     77                     PUSH    DS
-                            78     
-001A BB----         R       79                     MOV     BX,DATA_SEG             ;initialize data segment register
-001D 8EDB                   80                     MOV     DS,BX
-001F 8A1E5500               81                     MOV BL, DS:NET_STATE
-0023 80FB02                 82                     CMP BL, NET_BUFFERING
-0026 7431                   83                     JZ BUFFERING
-0028 80FB01                 84                     CMP BL, NET_SELECTED
-002B 7406                   85                     JZ SELECTED
-                            86                     
-002D 3A065600               87                     CMP     AL,DS:ADDRESS
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    17:11:24  11/14/;2  PAGE    3
+                            73     ASSUME  CS:CODE_SEG, SS:STACK_SEG
+                            74     
+0000                        75     START:
+                            76     ;initialize stack area
+0000 B8----         R       77                     MOV     AX,STACK_SEG            
+0003 8ED0                   78                     MOV     SS,AX
+0005 368B260001             79                     MOV     SP,TOS
+                            80     
+                            81     ; Initialize the on-chip pheripherals
+000A 9A0000----     E       82                     CALL    FAR PTR IODEFINE
+                            83                     
+                            84     
+                            85     
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    04:04:38  11/29/;2  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
 
-0031 751E                   88                     JNE     WRONG_ADDRESS
-                            89     ;               IF POLL IS SELECTING DS:ADDRESS, TRANSMIT THE BARCODE
-0033                        90     SELECTED:
-0033 C606550001             91                     MOV DS:NET_STATE, NET_SELECTED
-0038 B90F00                 92                     MOV CX, 15
-003B BB0000                 93                     MOV BX, 0
-003E                        94     START_TRANSMIT:         
-003E 8A4731                 95                     MOV AL,DS:BARCODE[BX]
-0041 9A0000----     E       96                     CALL FAR PTR PRINT_CHAR
-0046 43                     97                     INC BX
-0047 E2F5                   98                     LOOP    START_TRANSMIT
-0049 C606550002             99                     MOV DS:NET_STATE, NET_BUFFERING
-004E EB3E90                100                     JMP     S_RET
-                           101     
-0051                       102     WRONG_ADDRESS:          
-0051 9A0000----     E      103                     CALL FAR PTR PRINT_CHAR
-0056 EB3690                104                     JMP S_RET
-0059                       105     BUFFERING:
-0059 8A1E5400              106                     MOV BL, DS:CUR_INDEX
-005D 32FF                  107                     XOR BH,BH
-005F 88474C                108                     MOV DS:CUR_PRICE[BX], AL
-                           109                     
-0062 FEC3                  110                     INC BL
-0064 80FB08                111                     CMP BL, 08
-0067 7D07                  112                     JGE BUFFER_END
-0069 881E5400              113                     MOV DS:CUR_INDEX, BL
-006D EB1F90                114                     JMP S_RET
-0070                       115     BUFFER_END:
-0070 B90800                116                     MOV CX,08
-0073 BB0000                117                     MOV BX, 0
-0076 8A474C                118                     MOV AL, DS:CUR_PRICE[BX]
-0079                       119     ACK_LOOP:
-0079 8A474C                120                     MOV AL, DS:CUR_PRICE[BX]
-007C 9A0000----     E      121                     CALL FAR PTR PRINT_CHAR
-0081 43                    122                     INC BX
-0082 E2F5                  123                     LOOP    ACK_LOOP
-0084 C606550000            124                     MOV DS:NET_STATE, NET_READY
-0089 32C0                  125                     XOR AL,AL
-008B A25400                126                     MOV DS:CUR_INDEX, AL
-008E                       127     S_RET:
-008E 1F                    128                     POP     DS
-008F 5B                    129                     POP     BX
-0090 59                    130                     POP     CX
-0091 CB                    131                     RET
-                           132     SERIAL_REC_ACTION       ENDP
-                           133     
-                           134     
-                           135     
-0092                       136     TIMER2_ACTION   PROC    FAR
-0092 50                    137                     PUSH    AX
-0093 1E                    138                     PUSH    DS
-0094 53                    139                     PUSH    BX
-0095 51                    140                     PUSH    CX
-                           141     
-0096 B8----         R      142                     MOV     AX,DATA_SEG
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    17:11:24  11/14/;2  PAGE    4
+                            86     ; ^^^^^^^^^^^^^^^^^  Start of User Main Routine  ^^^^^^^^^^^^^^^^^^
+000F 9A0000----     E       87         call set_timer2
+0014 FB                     88                      STI
+                            89     
+0015                        90     NEXT:     
+0015 EBFE                   91     JMP NEXT
+                            92     
+                            93     ; ^^^^^^^^^^^^^^^ End of User main routine ^^^^^^^^^^^^^^^^^^^^^^^^^
+                            94     
+                            95     
+0017                        96     SERIAL_REC_ACTION       PROC    FAR
+0017 51                     97                     PUSH    CX
+0018 53                     98                     PUSH    BX
+0019 1E                     99                     PUSH    DS
+                           100     
+001A BB----         R      101                     MOV     BX,DATA_SEG             ;initialize data segment register
+001D 8EDB                  102                     MOV     DS,BX
+001F 8A1E5500              103                     MOV BL, DS:NET_STATE
+0023 80FB01                104                     CMP BL, NET_PREADDR_BUFFERING
+0026 743F                  105                     JZ ADDR_BUFFERING
+0028 80FB02                106                     CMP BL, NET_ADDR_RECIEVING
+002B 7452                  107                     JZ ADDR_RECIEVING
+002D 80FB04                108                     CMP BL, NET_BUFFERING
+0030 740C                  109                     JZ CALL_BUFFERING
+0032 80FB03                110                     CMP BL, NET_SELECTED
+0035 740F                  111                     JZ SELECTED
+                           112             ;; 
+0037 3C60                  113                     CMP AL, NET_PREADDR_CHAR
+0039 742C                  114                     JZ ADDR_BUFFERING
+                           115     
+                           116             
+003B E98500                117                     JMP     S_RET
+                           118             
+                           119             ;;      JNE     WRONG_ADDRESS
+                           120     ;               IF POLL IS SELECTING DS:ADDRESS, TRANSMIT THE BARCODE
+003E                       121     CALL_BUFFERING:
+003E 9AC700----     R      122                     CALL FAR PTR DATA_BUFFERING
+0043 EB7E90                123                     JMP S_RET
+0046                       124     SELECTED:
+                           125             ;; starts sending the barcode and quantity
+                           126     
+0046 B90F00                127                     MOV CX, NET_PAYLOAD_LEN
+0049 BB0000                128                     MOV BX, 0
+004C                       129     START_TRANSMIT:         
+004C 8A4731                130                     MOV AL,DS:BARCODE[BX]
+004F 9A0000----     E      131                     CALL FAR PTR PRINT_CHAR
+0054 43                    132                     INC BX
+0055 E2F5                  133                     LOOP    START_TRANSMIT
+                           134             ;; change state to recieving
+0057 C606550004            135                     MOV DS:NET_STATE, NET_BUFFERING
+005C EB6590                136                     JMP     S_RET
+                           137     
+005F                       138     WRONG_ADDRESS:          
+005F 9A0000----     E      139                     CALL FAR PTR PRINT_CHAR
+0064 EB5D90                140                     JMP S_RET
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    04:04:38  11/29/;2  PAGE    4
 
 
 LOC  OBJ                  LINE     SOURCE
 
-0099 8ED8                  143                     MOV     DS,AX
-                           144             
-009B FE0E1600              145                     DEC     DS:T_COUNT
-009F 7506                  146                     JNZ     T_NEXT1
-00A1 A01700                147                     MOV     AL,DS:T_COUNT_SET
-00A4 A21600                148                     MOV     DS:T_COUNT,AL
-                           149     
-                           150     ;               MOV     CX,20
-                           151     ;               MOV     BX,0H
-00A7                       152     T_NEXT0:
-                           153     ;               MOV     AL,DS:TIMER0_MESS[BX]
-                           154     ;               INC     BX
-                           155     ;               CALL    FAR PTR PRINT_CHAR
-                           156     ;               LOOP    T_NEXT0
-                           157     
-00A7                       158     T_NEXT1:
-00A7 BA0001                159                     MOV DX, 0100H
-00AA B80100                160                     MOV AX, 01H
-00AD EF                    161                     OUT DX, AX
-                           162                     
-00AE BA8001                163                     MOV DX, 0180H
-00B1 B87E00                164                     MOV AX, 07EH
-00B4 EF                    165                     OUT DX, AX
-                           166                     
-00B5 59                    167                     POP     CX
-00B6 5B                    168                     POP     BX
-00B7 1F                    169                     POP     DS
-00B8 58                    170                     POP     AX
-00B9 CB                    171                     RET
-                           172     TIMER2_ACTION   ENDP
-                           173     
-                           174     
-----                       175     CODE_SEG        ENDS
-                           176     END
+                           141      
+0067                       142     ADDR_BUFFERING:
+                           143             ;; buffers the incoming addr char '`' as by protocol
+0067 FE065800              144                     INC DS:ADDR_INCOM_COUNT
+006B A05800                145                     MOV AL, DS:ADDR_INCOM_COUNT
+006E 3C03                  146                     CMP AL,NET_PREADDR_LEN
+0070 750A                  147                     JNE SKIP_UPDATE
+0072 C606550002            148                     MOV DS:NET_STATE, NET_ADDR_RECIEVING
+0077 B000                  149                     MOV AL, 0
+0079 A25800                150                     MOV DS:ADDR_INCOM_COUNT, AL
+007C                       151     SKIP_UPDATE:    
+007C EB4590                152                     JMP S_RET
+                           153             
+007F                       154     ADDR_RECIEVING:
+                           155             ;; recives the address being broadcasted. address is only 2 bytes
+007F 8A1E5900              156                     MOV BL, DS:ADDR_COUNT
+0083 32FF                  157                     XOR BH, BH
+0085 88475A                158                     MOV DS:ADDR_BUFFER[BX], AL
+0088 FE065900              159                     INC DS:ADDR_COUNT
+008C A05900                160                     MOV AL, DS:ADDR_COUNT
+008F 3C02                  161                     CMP AL,ADDR_LEN
+0091 7D03                  162                     JGE ADDR_DONE
+0093 EB2E90                163                     JMP S_RET
+0096                       164     ADDR_DONE:
+0096 8A265A00              165                     MOV AH,DS:ADDR_BUFFER
+009A A05B00                166                     MOV AL,DS:ADDR_BUFFER[1]
+009D 3B065600              167                     CMP AX,DS:ADDRESS
+00A1 7414                  168                     JE ISMYADDR
+                           169             ;; FOR DEV PURPOSES ONLY
+00A3 B04E                  170                     MOV AL, NACK
+00A5 9A0000----     E      171                     CALL FAR PTR PRINT_CHAR
+                           172             ;; RESET STATE TO READY SINCE NOT MY ADDR
+00AA B000                  173                     MOV AL, NET_READY
+00AC A25500                174                     MOV DS:NET_STATE, AL
+00AF 32C0                  175                     XOR AL,AL
+00B1 A25900                176                     MOV DS:ADDR_COUNT, AL
+00B4 EB0D90                177                     JMP S_RET
+00B7                       178     ISMYADDR:
+                           179             ;; SET STATE TO SELECTED
+00B7 B003                  180                     MOV AL,NET_SELECTED
+00B9 A25500                181                     MOV DS:NET_STATE, AL
+00BC B000                  182                     MOV AL, 0
+                           183             ;; RESET ADDR_COUNT
+00BE A25900                184                     MOV DS:ADDR_COUNT, AL
+00C1 EB83                  185                     JMP SELECTED
+                           186     
+00C3                       187     S_RET:
+00C3 1F                    188                     POP     DS
+00C4 5B                    189                     POP     BX
+00C5 59                    190                     POP     CX
+00C6 CB                    191                     RET
+                           192     SERIAL_REC_ACTION       ENDP
+                           193     
+00C7                       194     DATA_BUFFERING  PROC    FAR
+                           195             
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    04:04:38  11/29/;2  PAGE    5
+
+
+LOC  OBJ                  LINE     SOURCE
+
+00C7 50                    196                     PUSH AX
+00C8 53                    197                     PUSH BX
+                           198             
+00C9 8A1E5400              199                     MOV BL, DS:CUR_INDEX
+00CD 32FF                  200                     XOR BH,BH
+00CF 88474C                201                     MOV DS:CUR_PRICE[BX], AL
+                           202                     
+00D2 FEC3                  203                     INC BL
+00D4 80FB06                204                     CMP BL, PRICE_LEN
+00D7 7D07                  205                     JGE BUFFER_END
+00D9 881E5400              206                     MOV DS:CUR_INDEX, BL
+00DD EB1F90                207                     JMP ESCAPE_PROC 
+00E0                       208     BUFFER_END:
+00E0 B90600                209                     MOV CX,PRICE_LEN
+00E3 BB0000                210                     MOV BX, 0
+00E6 8A474C                211                     MOV AL, DS:CUR_PRICE[BX]
+00E9                       212     ACK_LOOP:
+00E9 8A474C                213                     MOV AL, DS:CUR_PRICE[BX]
+00EC 9A0000----     E      214                     CALL FAR PTR PRINT_CHAR
+00F1 43                    215                     INC BX
+00F2 E2F5                  216                     LOOP    ACK_LOOP
+00F4 C606550000            217                     MOV DS:NET_STATE, NET_READY
+00F9 32C0                  218                     XOR AL,AL
+00FB A25400                219                     MOV DS:CUR_INDEX, AL
+00FE                       220     ESCAPE_PROC:    
+00FE 5B                    221                     POP BX
+00FF 58                    222                     POP AX
+0100 CB                    223                     RET
+                           224             
+                           225     DATA_BUFFERING ENDP
+                           226     
+0101                       227     TIMER2_ACTION   PROC    FAR
+0101 50                    228                     PUSH    AX
+0102 1E                    229                     PUSH    DS
+0103 53                    230                     PUSH    BX
+0104 51                    231                     PUSH    CX
+                           232     
+0105 B8----         R      233                     MOV     AX,DATA_SEG
+0108 8ED8                  234                     MOV     DS,AX
+                           235             
+010A FE0E1600              236                     DEC     DS:T_COUNT
+010E 7506                  237                     JNZ     T_NEXT1
+0110 A01700                238                     MOV     AL,DS:T_COUNT_SET
+0113 A21600                239                     MOV     DS:T_COUNT,AL
+                           240     
+                           241     ;               MOV     CX,20
+                           242     ;               MOV     BX,0H
+0116                       243     T_NEXT0:
+                           244     ;               MOV     AL,DS:TIMER0_MESS[BX]
+                           245     ;               INC     BX
+                           246     ;               CALL    FAR PTR PRINT_CHAR
+                           247     ;               LOOP    T_NEXT0
+                           248     
+0116                       249     T_NEXT1:
+0116 BA0001                250                     MOV DX, 0100H
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    04:04:38  11/29/;2  PAGE    6
+
+
+LOC  OBJ                  LINE     SOURCE
+
+0119 B80100                251                     MOV AX, 01H
+011C EF                    252                     OUT DX, AX
+                           253                     
+011D BA8001                254                     MOV DX, 0180H
+0120 B87E00                255                     MOV AX, 07EH
+0123 EF                    256                     OUT DX, AX
+                           257                     
+0124 59                    258                     POP     CX
+0125 5B                    259                     POP     BX
+0126 1F                    260                     POP     DS
+0127 58                    261                     POP     AX
+0128 CB                    262                     RET
+                           263     TIMER2_ACTION   ENDP
+                           264     
+                           265     
+----                       266     CODE_SEG        ENDS
+                           267     END
 
 ASSEMBLY COMPLETE, NO ERRORS FOUND

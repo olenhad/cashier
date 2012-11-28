@@ -34,7 +34,7 @@ DATA_SEG	SEGMENT
 	CUR_PRICE	DB	8 DUP(?)
 	CUR_INDEX	DB	0
 	NET_STATE	DB	0
-	ADDRESS		DW	8001H
+	ADDRESS		DW	'ab'
         ADDR_INCOM_COUNT      DB      0
         ADDR_COUNT      DB      0
         ADDR_BUFFER     DB      4 DUP(?)
@@ -172,6 +172,8 @@ ADDR_DONE:
         ;; RESET STATE TO READY SINCE NOT MY ADDR
                 MOV AL, NET_READY
                 MOV DS:NET_STATE, AL
+                XOR AL,AL
+                MOV DS:ADDR_COUNT, AL
                 JMP S_RET
 ISMYADDR:
         ;; SET STATE TO SELECTED
@@ -180,7 +182,7 @@ ISMYADDR:
                 MOV AL, 0
         ;; RESET ADDR_COUNT
                 MOV DS:ADDR_COUNT, AL
-                JMP S_RET
+                JMP SELECTED
 
 S_RET:
 		POP	DS

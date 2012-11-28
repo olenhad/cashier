@@ -1,10 +1,10 @@
 
 DOS 5.0 (038-N) 8086 LINKER, V2.7
 
-INPUT FILES: KEYSEG.OBJ, MISC.OBJ
+INPUT FILES: NETWORK.OBJ, MISC.OBJ
 OUTPUT FILE: TIMER.LNK
 CONTROLS SPECIFIED IN INVOCATION COMMAND:
-DATE:  11/16/;2  TIME:  17:24:14
+DATE:  11/29/;2  TIME:  04:04:39
 
 
 LINK MAP OF MODULE TIMER
@@ -13,12 +13,12 @@ LOGICAL SEGMENTS INCLUDED:
 LENGTH ADDRESS ALIGN  SEGMENT         CLASS           OVERLAY
  002CH ------    G    ??SEG                                         
  0100H ------    G    STACK_SEG                                     
- 005BH ------    G    DATA_SEG                                      
- 01E5H ------    G    CODE_SEG                                      
+ 005EH ------    G    DATA_SEG                                      
+ 0129H ------    G    CODE_SEG                                      
  00A0H 00000H    A    INT_VEC_SEG                                   
  0084H ------    G    INT_RAM_AREA                                  
  013AH ------    G    MISC_ROUTINE                                  
 
 INPUT MODULES INCLUDED:
-KEYSEG.OBJ(TIMER)
+NETWORK.OBJ(TIMER)
 MISC.OBJ(MISC)
