@@ -1,4 +1,4 @@
-8086/87/88/186 MACRO ASSEMBLER    MISC                                                     04:04:38  11/29/;2  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    MISC                                                     05:09:36  11/29/;2  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE MISC
@@ -58,7 +58,7 @@ LOC  OBJ                  LINE     SOURCE
 0080 ????????               48             SOFT0           DD      ? ;TYPE 32
 0084 ????????               49             SOFT1           DD      ? ;TYPE 33
 0088 ????????               50             SOFT2           DD      ?
-8086/87/88/186 MACRO ASSEMBLER    MISC                                                     04:04:38  11/29/;2  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    MISC                                                     05:09:36  11/29/;2  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -118,7 +118,7 @@ LOC  OBJ                  LINE     SOURCE
 0007 BAA4FF           =1   100              MOV DX, PCSBA
 000A B80300           =1   101              MOV AX, 0003H ; Peripheral starting address 00H no READY, No Waits
 000D EE               =1   102              OUT DX, AL
-8086/87/88/186 MACRO ASSEMBLER    MISC                                                     04:04:38  11/29/;2  PAGE    3
+8086/87/88/186 MACRO ASSEMBLER    MISC                                                     05:09:36  11/29/;2  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -178,7 +178,7 @@ LOC  OBJ                  LINE     SOURCE
                       =1   155     
                       =1   156     ; Timer control Unit
                       =1   157       
-8086/87/88/186 MACRO ASSEMBLER    MISC                                                     04:04:38  11/29/;2  PAGE    4
+8086/87/88/186 MACRO ASSEMBLER    MISC                                                     05:09:36  11/29/;2  PAGE    4
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -238,7 +238,7 @@ LOC  OBJ                  LINE     SOURCE
                            210     ; Enable serial interrupts
 0006 B003                  211                     MOV     AL,S_INT_ENA
 0008 E601                  212                     OUT     SIER,AL
-8086/87/88/186 MACRO ASSEMBLER    MISC                                                     04:04:38  11/29/;2  PAGE    5
+8086/87/88/186 MACRO ASSEMBLER    MISC                                                     05:09:36  11/29/;2  PAGE    5
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -298,7 +298,7 @@ LOC  OBJ                  LINE     SOURCE
 0034 06                    265                     PUSH    ES
                            266     
 0035 50                    267                     PUSH    AX
-8086/87/88/186 MACRO ASSEMBLER    MISC                                                     04:04:38  11/29/;2  PAGE    6
+8086/87/88/186 MACRO ASSEMBLER    MISC                                                     05:09:36  11/29/;2  PAGE    6
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -358,7 +358,7 @@ LOC  OBJ                  LINE     SOURCE
 008E                       320     Set_timer2      proc Far
 008E 50                    321             push ax
 008F 52                    322             push dx
-8086/87/88/186 MACRO ASSEMBLER    MISC                                                     04:04:38  11/29/;2  PAGE    7
+8086/87/88/186 MACRO ASSEMBLER    MISC                                                     05:09:36  11/29/;2  PAGE    7
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -418,7 +418,7 @@ LOC  OBJ                  LINE     SOURCE
 00BD BA22FF                374                     MOV DX, EOI
 00C0 B80C00                375                     MOV AX, 12
 00C3 EE                    376                     OUT DX, AL
-8086/87/88/186 MACRO ASSEMBLER    MISC                                                     04:04:38  11/29/;2  PAGE    8
+8086/87/88/186 MACRO ASSEMBLER    MISC                                                     05:09:36  11/29/;2  PAGE    8
 
 
 LOC  OBJ                  LINE     SOURCE
@@ -478,7 +478,7 @@ LOC  OBJ                  LINE     SOURCE
 0125 5A                    429                     POP     DX 
 0126 5B                    430                     POP     BX                      ;return serial interrupt
 0127 58                    431                     POP     AX
-8086/87/88/186 MACRO ASSEMBLER    MISC                                                     04:04:38  11/29/;2  PAGE    9
+8086/87/88/186 MACRO ASSEMBLER    MISC                                                     05:09:36  11/29/;2  PAGE    9
 
 
 LOC  OBJ                  LINE     SOURCE
