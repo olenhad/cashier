@@ -25,8 +25,8 @@ LED_SELECT	EQU	0100H
 LED_OUTPUT	EQU	0180H 
 PCSBA           EQU    0FFA4H ; Peripheral Chip Select Base Address
 MPCS            EQU    0FFA8H ; MMCS and PCS Alter Control Register
-KBD_BUFFER_LEN	EQU		7
-KBD_BUFFER_LEN2	EQU		2
+KBD_BUFFER_LEN	EQU		9
+KBD_BUFFER_LEN2	EQU		9
 STACK_SEG	SEGMENT
 		DB	256 DUP(?)
 	TOS	LABEL	WORD
@@ -56,7 +56,7 @@ DATA_SEG	SEGMENT
 	LED_CURSOR	DB	0H
         KBD_ROW_COUNTER2 DB     0H
         KBD_OUTPUT2      DB     0H
-        KBD_BUFFER2	DB	10 DUP(?)
+        KBD_BUFFER2	DB	20 DUP(?)
         KBD_BUFFER_SEEK2  DB      0H
         KBD_INPUT2	DB	0H
         
@@ -118,8 +118,9 @@ NEXT:
        ; MOV AX,DS:DISPLAY_NUM
 	
 	;INC DS:CUR_LED
+	;CALL FAR PTR KEYBOARD2
 	CALL FAR PTR KEYBOARD
-	CALL FAR PTR KEYBOARD2
+	
 	;CALL FAR PTR DISPLAY_LED
  JMP NEXT
 
@@ -176,13 +177,13 @@ KEYBOARD PROC FAR
 
 INIT:		
 		
-		
+		call far ptr keyboard2
 		MOV CL, 07FH	;STORES OUTPUT FOR ROW COUNTER;
 		;MOV AL,0FEH ; 1111 1110
 		MOV CH, 0H	;set row counter
 		MOV DS:KBD_ROW_COUNTER,CH
 		MOV DS:KBD_OUTPUT, CL
-
+		
 		
 NEXT_ROW:
 		MOV AL,DS:KBD_ROW_COUNTER
@@ -327,13 +328,18 @@ INIT2:
 		MOV CH, 0H	;set row counter
 		MOV DS:KBD_ROW_COUNTER2,CH
 		MOV DS:KBD_OUTPUT2, CL
-
+	
+		;call far ptr print_char
+		jmp next_row2
+hacky_shit:
+		jmp exit_kbd2
 		
 NEXT_ROW2:
 		MOV AL,DS:KBD_ROW_COUNTER2
 	
+
 		CMP AL,04
-		JGE INIT2
+		JGE hacky_shit
 		MOV CL,DS:KBD_OUTPUT2 
 		ROL CL, 01H       ;rotate AL to ground next row/ al HAS 8 BITS. so must JMP BACK TO WAIT
 
@@ -342,12 +348,14 @@ NEXT_ROW2:
 		MOV DX, PORTC	;port C address to DX; 
 		OUT DX, AL	;give positive logic to one of the rows
 		MOV DS:KBD_OUTPUT2, AL	
-        
+        ;add al,48
+		;call far ptr print_char
 		MOV DX, PORTB	;port B address to DX  
 		IN  AL,DX	;read input port for key closure
 		
 		
 		;mov al,101b; change later
+		;call far ptr print_char
 		AND AL, 38H	;Mask D4-D7  00xx x000
                 SHR AL,03
 		CMP AL,07H
@@ -422,7 +430,7 @@ RETPOINT2:
 	
 	JMP NEXT_ROW2
 		
-	
+exit_kbd2:	
 	POP AX
 	POP BX
 	POP CX
