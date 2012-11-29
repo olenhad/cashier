@@ -250,11 +250,15 @@ C_START_T_HANDLE:
 		
 C_RECV_BARCODE:
         
-        
+         MOV AL, DS:KBD_INPUT2
+	CMP AL, TRIGGER_BARCODE
+	JE UPDATE_B_STATE
+
 	MOV AL, DS:KBD_LATCH
   
 	CMP AL, KBD_NEW
 	JNE EXIT_RECV_BARCODE
+        
 	mov al, 'c'
         call far ptr print_char
         
@@ -263,24 +267,21 @@ C_RECV_BARCODE:
 	MOV BL, DS:BARCODE_SEEK
 	XOR BH, BH
 	MOV DS:BARCODE_BUFFER[BX],AL
-        ;; 	INC BL
+      	INC BL
 
 
-        ;;         call far ptr print_char 
+     
 	MOV DS:BARCODE_SEEK, BL
         MOV DS:KBD_LATCH, KBD_STALE
 
-        MOV AL, DS:KBD_INPUT2
-	CMP AL, TRIGGER_BARCODE
-	JE UPDATE_B_STATE
-	
+       	
         
         JMP EXIT_RECV_BARCODE
 	
 	
 UPDATE_B_STATE:
         ;; 	MOV DS:CASHIER_STATE, CASHIER_RECV_QUANTITY
-        ;;       call far ptr PRINT_BARCODE_BUFFER 
+           call far ptr PRINT_BARCODE_BUFFER 
         
 EXIT_RECV_BARCODE:
 	JMP EXIT_CASHIER_STATE
