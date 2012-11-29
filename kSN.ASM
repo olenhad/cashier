@@ -54,7 +54,8 @@ STACK_SEG	ENDS
 
 
 DATA_SEG	SEGMENT
-	
+
+	CASHIER_STATE	DB	CASHIER_READY
 	TIMER0_MESS	DB	10,13,'TIMER2 INTERRUPT    '
 	T_COUNT		DB	2FH
 	T_COUNT_SET	DB	2FH
@@ -65,8 +66,6 @@ DATA_SEG	SEGMENT
 	LED_BUFFER	DB	3fh,06h,5bh,4fh,66h,6dh
 	CUR_LED		DB	0H
 	DISPLAY_NUM	DW	1234H
-	KBD_BUFFER	DB	20 DUP(?)
-        KBD_BUFFER_SEEK DB      0H
 		
 	KBD_ROW_COUNTER	DB	0H
 	;USED TO OUTPUT TO KBD
@@ -78,10 +77,8 @@ DATA_SEG	SEGMENT
 	LED_CURSOR	DB	0H
         KBD_ROW_COUNTER2 DB     0H
         KBD_OUTPUT2      DB     0H
-        KBD_BUFFER2	DB	20 DUP(?)
-        KBD_BUFFER_SEEK2  DB      0H
         KBD_INPUT2	DB	0H
-    CASHIER_STATE	DB	CASHIER_READY
+    
 	
 ;=========================================================================
 ;Port B of the 8255 is used as the input port for the keybad
@@ -114,11 +111,17 @@ DATA_SEG	SEGMENT
         ;;   |
         ;;  NET_BUFFERING -> '1'*PRICE_LEN -> CUR_PRICE UPDATED ->ACK CUR_PRICE
         ;; return READY
-	BARCODE_BUFFER	DB	20 DUP(?)
+	BARCODE_BUFFER	DB	50 DUP(?)
 	BARCODE_SEEK	DB	0H
 	QUANTITY_BUFFER	DB	10 DUP(?)
 	QUANTITY_SEEK	DB	0H
+        KBD_BUFFER_SEEK DB      0H
+        KBD_BUFFER_SEEK2  DB      0H
+        KBD_BUFFER2	DB	30 DUP(?)
+	KBD_BUFFER	DB	30 DUP(?)
 
+        
+        
 DATA_SEG	ENDS
 
 
@@ -174,6 +177,7 @@ NEXT:
 	;INC DS:CUR_LED
 	;CALL FAR PTR KEYBOARD2
 	CALL FAR PTR KEYBOARD
+        call far ptr keyboard2
       	CALL FAR PTR CASHIER_STATE_M 
 	
         
@@ -226,8 +230,8 @@ C_READY_HANDLE:
 	JNE HACKY_READY
 	MOV AL, CASHIER_START_TRANSACTION
 	MOV DS:CASHIER_STATE, AL
-        mov al, 'b'
-        call far ptr print_char
+       
+       
 	JMP EXIT_CASHIER_STATE
 
 HACKY_READY:
@@ -237,6 +241,7 @@ C_START_T_HANDLE:
 	CALL FAR PTR CLEAR_LED
 	MOV AL, CASHIER_RECV_BARCODE
 	MOV DS:CASHIER_STATE, AL
+        
 	MOV DS:LED_CURSOR, 0H
         MOV AL,'s'
         CALL FAR PTR PRINT_CHAR
@@ -247,6 +252,7 @@ C_RECV_BARCODE:
         
         
 	MOV AL, DS:KBD_LATCH
+  
 	CMP AL, KBD_NEW
 	JNE EXIT_RECV_BARCODE
 	mov al, 'c'
@@ -257,11 +263,10 @@ C_RECV_BARCODE:
 	MOV BL, DS:BARCODE_SEEK
 	XOR BH, BH
 	MOV DS:BARCODE_BUFFER[BX],AL
-	INC BL
+        ;; 	INC BL
 
-        mov al, bl
-        add al, 48
-        call far ptr print_char
+
+        ;;         call far ptr print_char 
 	MOV DS:BARCODE_SEEK, BL
         MOV DS:KBD_LATCH, KBD_STALE
 
@@ -274,8 +279,8 @@ C_RECV_BARCODE:
 	
 	
 UPDATE_B_STATE:
-        ;; 	MOV DS:CASHIER_STATE, CASHIER_RECV_QUANTITY 
-      call far ptr PRINT_BARCODE_BUFFER
+        ;; 	MOV DS:CASHIER_STATE, CASHIER_RECV_QUANTITY
+        ;;       call far ptr PRINT_BARCODE_BUFFER 
         
 EXIT_RECV_BARCODE:
 	JMP EXIT_CASHIER_STATE
@@ -302,8 +307,8 @@ C_RECV_QUANTITY:
         
 UPDATE_C_STATE:
 ;;; REMEMBER TO MAKE INTO A PACKET
-        CALL FAR PTR MAKE_PACKET
-        MOV DS:CASHIER_STATE,CASHIER_GET_PRICE
+        ;;         CALL FAR PTR MAKE_PACKET
+        ;;     MOV DS:CASHIER_STATE,CASHIER_GET_PRICE
 EXIT_RECV_QUANTITY:
 	JMP EXIT_CASHIER_STATE		
 	
@@ -311,8 +316,7 @@ C_GET_PRICE:
         MOV AL, DS:CUR_PRICE_LATCH
         CMP AL, PRICE_NEW
         JNE EXIT_GET_PRICE
-
-        MOV DS:CASHIER_STATE, CASHIER_DISPLAY_PRICE
+        ;;         MOV DS:CASHIER_STATE, CASHIER_DISPLAY_PRICE
 
       
 
@@ -321,9 +325,9 @@ EXIT_GET_PRICE:
 
 C_DISP_PRICE:
         CALL FAR PTR DISPLAY_PRICE_LED
-        MOV DS:CASHIER_STATE, CASHIER_READY
-EXIT_CASHIER_STATE:	
-	POP DX
+        ;;         MOV DS:CASHIER_STATE, CASHIER_READY
+EXIT_CASHIER_STATE:
+        POP DX
 	POP CX
 	POP BX
 	POP AX
@@ -481,7 +485,7 @@ KEYBOARD PROC FAR
 
 INIT:		
 		
-		call far ptr keyboard2
+		
 		MOV CL, 07FH	;STORES OUTPUT FOR ROW COUNTER;
 		;MOV AL,0FEH ; 1111 1110
 		MOV CH, 0H	;set row counter
@@ -525,7 +529,7 @@ VALIDATED:
 		CALL FAR PTR KBD_PROCESS
 		;Bl CONTAINS iNDEX OF ARRAY WITH CURRENT KEY
         ;; | SEEK==0 = ADD_TO_BUFFER
-        ;; | BUFFER[SEEK]== BL = ADD_TO_BUFFER
+        ;; | BUFFER[0]== aL = ADD_TO_BUFFER
         ;; | ELSE = (ADD_TO_BUFFER) & (SEEK 0) AKA RESET
 		;JMP NUMBERS
 
@@ -540,11 +544,10 @@ NUMBERS:
         MOV CL, DS:KBD_BUFFER_SEEK
         CMP CL,0H
         JZ ADD_TO_BUFFER
-				
-		XOR CH,CH
-        MOV SI, CX
+
+	
         MOV CL, KBD_BUFFER
-		;COMPARE WITH VALUE AT SEEK
+		;COMPARE WITH VALUE AT first
         CMP CL,AL
 		JZ  ADD_TO_BUFFER
 		
@@ -594,6 +597,8 @@ exit_kbd:
 KEYBOARD ENDP
 
 KBD_PROCESS		PROC	FAR
+                push ax
+                push dx
 		;0000 0101 => 1111 1010 => 0000 0010  => 0 , 1, 10   
 		NOT AL
 		AND AL, 07H; MASK OTHER BLOODY BITS OMGOMGOMG
@@ -616,7 +621,8 @@ KBD_PROCESS		PROC	FAR
         ;; | BUFFER[SEEK]== BL = ADD_TO_BUFFER
         ;; | ELSE = (ADD_TO_BUFFER) & (SEEK 0) AKA RESET
 
-	
+	        pop dx
+                pop ax
 RET
 KBD_PROCESS		ENDP
 
@@ -695,9 +701,7 @@ NUMBERS2:
         CMP CL,0H
         JZ ADD_TO_BUFFER2
 				
-		XOR CH,CH
-        MOV SI, CX
-        MOV CL, KBD_BUFFER2
+	MOV CL, KBD_BUFFER2
 		;COMPARE WITH VALUE AT SEEK
         CMP CL,AL
 		JZ  ADD_TO_BUFFER2
@@ -747,6 +751,8 @@ exit_kbd2:
 KEYBOARD2 ENDP
 
 KBD_PROCESS2		PROC	FAR
+                push ax
+                push dx
 		;0000 0101 => 1111 1010 => 0000 0010  => 0 , 1, 10   
 		NOT AL
 		AND AL, 07H; MASK OTHER BLOODY BITS OMGOMGOMG
@@ -769,7 +775,8 @@ KBD_PROCESS2		PROC	FAR
         ;; | BUFFER[SEEK]== BL = ADD_TO_BUFFER
         ;; | ELSE = (ADD_TO_BUFFER) & (SEEK 0) AKA RESET
 
-	
+	        pop dx
+                pop ax
 RET
 KBD_PROCESS2		ENDP
         
@@ -797,7 +804,7 @@ T_NEXT0:
 		INC	BX
         ;; 		CALL 	FAR PTR PRINT_CHAR
 		LOOP	T_NEXT0
-;	kanmy@comp.nus.edu.sg
+;	
 T_NEXT1:
 
 
