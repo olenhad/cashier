@@ -1,4 +1,4 @@
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    05:09:37  11/29/;2  PAGE    1
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    06:09:31  11/29/;2  PAGE    1
 
 
 DOS 5.0 (038-N) 8086/87/88/186 MACRO ASSEMBLER V3.1 ASSEMBLY OF MODULE TIMER
@@ -36,34 +36,35 @@ LOC  OBJ                  LINE     SOURCE
   FFA4                      26     PCSBA           EQU    0FFA4H ; Peripheral Chip Select Base Address
   FFA8                      27     MPCS            EQU    0FFA8H ; MMCS and PCS Alter Control Register
   0007                      28     KBD_BUFFER_LEN  EQU             7
-----                        29     STACK_SEG       SEGMENT
-0000 (256                   30                     DB      256 DUP(?)
+  0002                      29     KBD_BUFFER_LEN2 EQU             2
+----                        30     STACK_SEG       SEGMENT
+0000 (256                   31                     DB      256 DUP(?)
      ??
      )
-0100                        31             TOS     LABEL   WORD
-----                        32     STACK_SEG       ENDS
-                            33     
+0100                        32             TOS     LABEL   WORD
+----                        33     STACK_SEG       ENDS
                             34     
-----                        35     DATA_SEG        SEGMENT
-                            36             
-0000 0A                     37             TIMER0_MESS     DB      10,13,'TIMER2 INTERRUPT    '
+                            35     
+----                        36     DATA_SEG        SEGMENT
+                            37             
+0000 0A                     38             TIMER0_MESS     DB      10,13,'TIMER2 INTERRUPT    '
 0001 0D
 0002 54494D45523220
      494E5445525255
      505420202020
-0016 2F                     38             T_COUNT         DB      2FH
-0017 2F                     39             T_COUNT_SET     DB      2FH
-0018 0A                     40             REC_MESS        DB      10,13,'Period of timer0 = '  
+0016 2F                     39             T_COUNT         DB      2FH
+0017 2F                     40             T_COUNT_SET     DB      2FH
+0018 0A                     41             REC_MESS        DB      10,13,'Period of timer0 = '  
 0019 0D
 001A 506572696F6420
      6F662074696D65
-     7230203D20
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    05:09:37  11/29/;2  PAGE    2
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    06:09:31  11/29/;2  PAGE    2
 
 
 LOC  OBJ                  LINE     SOURCE
 
-002D 31                     41             array       DB      '1','2','3','4','5','6','7','8','9','*','0','#'
+     7230203D20
+002D 31                     42             array       DB      '1','2','3','4','5','6','7','8','9','*','0','#'
 002E 32
 002F 33
 0030 34
@@ -75,477 +76,660 @@ LOC  OBJ                  LINE     SOURCE
 0036 2A
 0037 30
 0038 23
-0039 3F                     42             BCD         DB  3FH,06H,5BH,4FH,66H,6DH,7DH,07H,7FH,06FH
-003A 06
-003B 5B
-003C 4F
-003D 66
-003E 6D
-003F 7D
-0040 07
-0041 7F
-0042 6F
-0043 3F                     43             LED_BUFFER      DB      3fh,06h,5bh,4fh,66h,6dh
-0044 06
-0045 5B
-0046 4F
-0047 66
-0048 6D
-0049 00                     44             CUR_LED         DB      0H
-004A 3412                   45             DISPLAY_NUM     DW      1234H
-004C (10                    46             KBD_BUFFER      DB      10 DUP(?)
+0039 41                     43             ARRAY2      DB      'A','B','C','D','E','F','G','H','I','J','K','L' 
+003A 42
+003B 43
+003C 44
+003D 45
+003E 46
+003F 47
+0040 48
+0041 49
+0042 4A
+0043 4B
+0044 4C
+0045 3F                     44             BCD         DB  3FH,06H,5BH,4FH,66H,6DH,7DH,07H,7FH,06FH
+0046 06
+0047 5B
+0048 4F
+0049 66
+004A 6D
+004B 7D
+004C 07
+004D 7F
+004E 6F
+004F 3F                     45             LED_BUFFER      DB      3fh,06h,5bh,4fh,66h,6dh
+0050 06
+0051 5B
+0052 4F
+0053 66
+0054 6D
+0055 00                     46             CUR_LED         DB      0H
+0056 3412                   47             DISPLAY_NUM     DW      1234H
+0058 (10                    48             KBD_BUFFER      DB      10 DUP(?)
      ??
      )
-0056 00                     47             KBD_BUFFER_SEEK DB      0H
-                            48                     
-0057 00                     49             KBD_ROW_COUNTER DB      0H
-                            50             ;USED TO OUTPUT TO KBD
-0058 00                     51             KBD_OUTPUT      DB      0H
-0059 00                     52             KBD_INPUT       DB      0H
-                            53             
-005A 00                     54             LED_CURSOR      DB      0H
-                            55     ;=========================================================================
-                            56     ;Port B of the 8255 is used as the input port for the keybad
-                            57     ;Port C is used as the output and grounds the rows one by one
-                            58     ;=========================================================================
-                            59     
-----                        60     DATA_SEG        ENDS
-                            61     
-                            62     
-----                        63     CODE_SEG        SEGMENT
-                            64     
-                            65             PUBLIC          START
-                            66     
-                            67     ASSUME  CS:CODE_SEG, SS:STACK_SEG, DS:DATA_SEG
-                            68     
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    05:09:37  11/29/;2  PAGE    3
+0062 00                     49             KBD_BUFFER_SEEK DB      0H
+                            50                     
+0063 00                     51             KBD_ROW_COUNTER DB      0H
+                            52             ;USED TO OUTPUT TO KBD
+0064 00                     53             KBD_OUTPUT      DB      0H
+0065 00                     54             KBD_INPUT       DB      0H
+                            55             
+0066 00                     56             LED_CURSOR      DB      0H
+0067 00                     57             KBD_ROW_COUNTER2 DB     0H
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    06:09:31  11/29/;2  PAGE    3
 
 
 LOC  OBJ                  LINE     SOURCE
 
-0000                        69     START:
-                            70      ; Initialize MPCS to MAP peripheral to IO address
-0000 BAA8FF                 71              MOV DX, MPCS
-0003 B88300                 72              MOV AX, 0083H
-0006 EE                     73              OUT DX, AL
-                            74     ; PCSBA initial, set the serial port start from 00H
-0007 BAA4FF                 75              MOV DX, PCSBA
-000A B80300                 76              MOV AX, 0003H ; Peripheral starting address 00H no READY, No Waits
-000D EE                     77              OUT DX, AL
-                            78     
-                            79     ;initialize stack area
-000E B8----         R       80                     MOV     AX,STACK_SEG            
-0011 8ED0                   81                     MOV     SS,AX
-0013 368B260001             82                     MOV     SP,TOS
-                            83     ;Initialise data segment
-0018 B8----         R       84                     MOV AX,DATA_SEG
-001B 8ED8                   85                     MOV DS,AX
+0068 00                     58             KBD_OUTPUT2      DB     0H
+0069 (10                    59             KBD_BUFFER2     DB      10 DUP(?)
+     ??
+     )
+0073 00                     60             KBD_BUFFER_SEEK2  DB      0H
+0074 00                     61             KBD_INPUT2      DB      0H
+                            62             
+                            63     ;=========================================================================
+                            64     ;Port B of the 8255 is used as the input port for the keybad
+                            65     ;Port C is used as the output and grounds the rows one by one
+                            66     ;=========================================================================
+                            67     
+----                        68     DATA_SEG        ENDS
+                            69     
+                            70     
+----                        71     CODE_SEG        SEGMENT
+                            72     
+                            73             PUBLIC          START
+                            74     
+                            75     ASSUME  CS:CODE_SEG, SS:STACK_SEG, DS:DATA_SEG
+                            76     
+0000                        77     START:
+                            78      ; Initialize MPCS to MAP peripheral to IO address
+0000 BAA8FF                 79              MOV DX, MPCS
+0003 B88300                 80              MOV AX, 0083H
+0006 EE                     81              OUT DX, AL
+                            82     ; PCSBA initial, set the serial port start from 00H
+0007 BAA4FF                 83              MOV DX, PCSBA
+000A B80300                 84              MOV AX, 0003H ; Peripheral starting address 00H no READY, No Waits
+000D EE                     85              OUT DX, AL
                             86     
-                            87     ; Initialize the on-chip pheripherals
-001D 9A0000----     E       88                     CALL FAR PTR IODEFINE
-                            89                     
-                            90     
-                            91     
-                            92     ; ^^^^^^^^^^^^^^^^^  Start of User Main Routine  ^^^^^^^^^^^^^^^^^^
-                            93        
-0022 B082                   94     MOV AL, 82H       ;mode 0, A - out, B-in ;changed value of CW from 82H
-0024 BA8300                 95                     MOV DX, CWR
-0027 EE                     96                     OUT DX, AL      ;send the control word
-0028 B300                   97                     MOV BL, 00H     ;initialize BL for key code
-002A 33C0                   98                     XOR AX, AX      ;clear ax flags
-002C BA8200                 99                     MOV DX, PORTC  ;port C address to DX
-002F EE                    100                     OUT DX, AL      ;ground all rows
-                           101                     
-                           102     
-                           103     
-                           104        
-                           105     ;code
-0030 9A0000----     E      106      call set_timer2
-0035 FB                    107                     STI
-                           108     
-0036                       109     NEXT:
-                           110            ; MOV AX,DS:DISPLAY_NUM
-                           111             
-                           112             ;INC DS:CUR_LED
-0036 9A7D00----     R      113             CALL FAR PTR KEYBOARD
-                           114             
-                           115             ;CALL FAR PTR DISPLAY_LED
-003B EBF9                  116      JMP NEXT
-                           117     
-                           118     ; ^^^^^^^^^^^^^^^ End of User main routine ^^^^^^^^^^^^^^^^^^^^^^^^^
-                           119     
-                           120     
-003D                       121     SERIAL_REC_ACTION       PROC    FAR
-003D 51                    122                     PUSH    CX
-003E 53                    123                     PUSH    BX
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    05:09:37  11/29/;2  PAGE    4
+                            87     ;initialize stack area
+000E B8----         R       88                     MOV     AX,STACK_SEG            
+0011 8ED0                   89                     MOV     SS,AX
+0013 368B260001             90                     MOV     SP,TOS
+                            91     ;Initialise data segment
+0018 B8----         R       92                     MOV AX,DATA_SEG
+001B 8ED8                   93                     MOV DS,AX
+                            94     
+                            95     ; Initialize the on-chip pheripherals
+001D 9A0000----     E       96                     CALL FAR PTR IODEFINE
+                            97                     
+                            98     
+                            99     
+                           100     ; ^^^^^^^^^^^^^^^^^  Start of User Main Routine  ^^^^^^^^^^^^^^^^^^
+                           101        
+0022 B082                  102     MOV AL, 82H       ;mode 0, A - out, B-in ;changed value of CW from 82H
+0024 BA8300                103                     MOV DX, CWR
+0027 EE                    104                     OUT DX, AL      ;send the control word
+0028 B300                  105                     MOV BL, 00H     ;initialize BL for key code
+002A 33C0                  106                     XOR AX, AX      ;clear ax flags
+002C BA8200                107                     MOV DX, PORTC  ;port C address to DX
+002F EE                    108                     OUT DX, AL      ;ground all rows
+                           109                     
+                           110     
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    06:09:31  11/29/;2  PAGE    4
 
 
 LOC  OBJ                  LINE     SOURCE
 
-003F 1E                    124                     PUSH    DS
+                           111     
+                           112        
+                           113     ;code
+0030 9A0000----     E      114      call set_timer2
+0035 FB                    115                     STI
+                           116     
+0036                       117     NEXT:
+                           118            ; MOV AX,DS:DISPLAY_NUM
+                           119             
+                           120             ;INC DS:CUR_LED
+0036 9A8200----     R      121             CALL FAR PTR KEYBOARD
+003B 9A3701----     R      122             CALL FAR PTR KEYBOARD2
+                           123             ;CALL FAR PTR DISPLAY_LED
+0040 EBF4                  124      JMP NEXT
                            125     
-0040 BB----         R      126                     MOV     BX,DATA_SEG             ;initialize data segment register
-0043 8EDB                  127                     MOV     DS,BX
+                           126     ; ^^^^^^^^^^^^^^^ End of User main routine ^^^^^^^^^^^^^^^^^^^^^^^^^
+                           127     
                            128     
-0045 3C3C                  129                     CMP     AL,'<'
-0047 750B                  130                     JNE     S_FAST
-                           131     
-0049 FE061700              132                     INC     DS:T_COUNT_SET
-004D FE061700              133                     INC     DS:T_COUNT_SET
-                           134     
-0051 EB0D90                135                     JMP     S_NEXT0
-0054                       136     S_FAST:
-0054 3C3E                  137                     CMP     AL,'>'
-0056 7521                  138                     JNE     S_RET
+0042                       129     SERIAL_REC_ACTION       PROC    FAR
+0042 51                    130                     PUSH    CX
+0043 53                    131                     PUSH    BX
+0044 1E                    132                     PUSH    DS
+                           133     
+0045 BB----         R      134                     MOV     BX,DATA_SEG             ;initialize data segment register
+0048 8EDB                  135                     MOV     DS,BX
+                           136     
+004A 3C3C                  137                     CMP     AL,'<'
+004C 750B                  138                     JNE     S_FAST
                            139     
-0058 FE0E1700              140                     DEC     DS:T_COUNT_SET
-005C FE0E1700              141                     DEC     DS:T_COUNT_SET
+004E FE061700              140                     INC     DS:T_COUNT_SET
+0052 FE061700              141                     INC     DS:T_COUNT_SET
                            142     
-0060                       143     S_NEXT0:
-0060 B91600                144                     MOV     CX,22                   ;initialize counter for message
-0063 BB0000                145                     MOV     BX,0
-                           146     
-0066 8A4718                147     S_NEXT1:        MOV     AL,DS:REC_MESS[BX]      ;print message
-0069 9A0000----     E      148                     call    FAR ptr print_char
-006E 43                    149                     INC     BX
-006F E2F5                  150                     LOOP    S_NEXT1
-                           151     
-0071 A01700                152                     MOV     AL,DS:T_COUNT_SET       ;print current period of timer0
-0074 9A0000----     E      153                     CALL    FAR PTR PRINT_2HEX
-0079                       154     S_RET:
-0079 1F                    155                     POP     DS
-007A 5B                    156                     POP     BX
-007B 59                    157                     POP     CX
-007C CB                    158                     RET
-                           159     SERIAL_REC_ACTION       ENDP
-                           160     
-007D                       161     KEYBOARD PROC FAR
-                           162     
-007D 52                    163                     PUSH    DX
-007E 51                    164                     PUSH    CX
-007F 53                    165                     PUSH    BX
-0080 50                    166                     PUSH    AX
-                           167                     
+0056 EB0D90                143                     JMP     S_NEXT0
+0059                       144     S_FAST:
+0059 3C3E                  145                     CMP     AL,'>'
+005B 7521                  146                     JNE     S_RET
+                           147     
+005D FE0E1700              148                     DEC     DS:T_COUNT_SET
+0061 FE0E1700              149                     DEC     DS:T_COUNT_SET
+                           150     
+0065                       151     S_NEXT0:
+0065 B91600                152                     MOV     CX,22                   ;initialize counter for message
+0068 BB0000                153                     MOV     BX,0
+                           154     
+006B 8A4718                155     S_NEXT1:        MOV     AL,DS:REC_MESS[BX]      ;print message
+006E 9A0000----     E      156                     call    FAR ptr print_char
+0073 43                    157                     INC     BX
+0074 E2F5                  158                     LOOP    S_NEXT1
+                           159     
+0076 A01700                160                     MOV     AL,DS:T_COUNT_SET       ;print current period of timer0
+0079 9A0000----     E      161                     CALL    FAR PTR PRINT_2HEX
+007E                       162     S_RET:
+007E 1F                    163                     POP     DS
+007F 5B                    164                     POP     BX
+0080 59                    165                     POP     CX
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    06:09:31  11/29/;2  PAGE    5
+
+
+LOC  OBJ                  LINE     SOURCE
+
+0081 CB                    166                     RET
+                           167     SERIAL_REC_ACTION       ENDP
                            168     
-0081                       169     INIT:           
-                           170                     
-                           171                     
-0081 B17F                  172                     MOV CL, 07FH    ;STORES OUTPUT FOR ROW COUNTER;
-                           173                     ;MOV AL,0FEH ; 1111 1110
-0083 B500                  174                     MOV CH, 0H      ;set row counter
-0085 882E5700              175                     MOV DS:KBD_ROW_COUNTER,CH
-0089 880E5800              176                     MOV DS:KBD_OUTPUT, CL
-                           177     
+0082                       169     KEYBOARD PROC FAR
+                           170     
+0082 52                    171                     PUSH    DX
+0083 51                    172                     PUSH    CX
+0084 53                    173                     PUSH    BX
+0085 50                    174                     PUSH    AX
+                           175                     
+                           176     
+0086                       177     INIT:           
                            178                     
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    05:09:37  11/29/;2  PAGE    5
-
-
-LOC  OBJ                  LINE     SOURCE
-
-008D                       179     NEXT_ROW:
-008D A05700                180                     MOV AL,DS:KBD_ROW_COUNTER
-                           181             
-0090 3C04                  182                     CMP AL,04
-0092 7DED                  183                     JGE INIT
-0094 8A0E5800              184                     MOV CL,DS:KBD_OUTPUT 
-0098 D0C1                  185                     ROL CL, 01H       ;rotate AL to ground next row/ al HAS 8 BITS. so mu
+                           179                     
+0086 B17F                  180                     MOV CL, 07FH    ;STORES OUTPUT FOR ROW COUNTER;
+                           181                     ;MOV AL,0FEH ; 1111 1110
+0088 B500                  182                     MOV CH, 0H      ;set row counter
+008A 882E6300              183                     MOV DS:KBD_ROW_COUNTER,CH
+008E 880E6400              184                     MOV DS:KBD_OUTPUT, CL
+                           185     
+                           186                     
+0092                       187     NEXT_ROW:
+0092 A06300                188                     MOV AL,DS:KBD_ROW_COUNTER
+                           189             
+0095 3C04                  190                     CMP AL,04
+0097 7DED                  191                     JGE INIT
+0099 8A0E6400              192                     MOV CL,DS:KBD_OUTPUT 
+009D D0C1                  193                     ROL CL, 01H       ;rotate AL to ground next row/ al HAS 8 BITS. so mu
                                    st JMP BACK TO WAIT
-                           186     
-                           187                     ;MOV CH, AL     ;save data byte to ground next row ;WAT?
-009A 8AC1                  188                     MOV AL,CL
-009C BA8200                189                     MOV DX, PORTC   ;port C address to DX; 
-009F EE                    190                     OUT DX, AL      ;give positive logic to one of the rows
-00A0 A25800                191                     MOV DS:KBD_OUTPUT, AL   
-                           192             
-00A3 BA8100                193                     MOV DX, PORTB   ;port B address to DX  
-00A6 EC                    194                     IN  AL,DX       ;read input port for key closure
-                           195                     
-                           196                     
-                           197                     ;mov al,101b; change later
-00A7 2407                  198                     AND AL, 07H     ;Mask D4-D7
-00A9 3C07                  199                     CMP AL,07H
-00AB 7463                  200                     JE RETPOINT
-                           201                     ;ERROR CHECK
-00AD 3C06                  202                     CMP AL,0110B
-00AF 740B                  203                     JE VALIDATED
-00B1 3C05                  204                     CMP AL,0101B
-00B3 7407                  205                     JE VALIDATED
-00B5 3C03                  206                     CMP AL,011B
-00B7 7403                  207                     JE VALIDATED
-00B9 EB5590                208                     JMP RETPOINT
-                           209                     
-00BC                       210     VALIDATED:              
-00BC 9A1C01----     R      211                     CALL FAR PTR KBD_PROCESS
-                           212                     ;Bl CONTAINS iNDEX OF ARRAY WITH CURRENT KEY
-                           213             ;; | SEEK==0 = ADD_TO_BUFFER
-                           214             ;; | BUFFER[SEEK]== BL = ADD_TO_BUFFER
-                           215             ;; | ELSE = (ADD_TO_BUFFER) & (SEEK 0) AKA RESET
-                           216                     ;JMP NUMBERS
-                           217     
-00C1                       218     NUMBERS:
-00C1 32FF                  219                     XOR BH, BH
-00C3 8A472D                220                     MOV AL,DS:array[BX] ; Stores character in AL (?)
-00C6 32E4                  221                     XOR AH,AH
-                           222                     ;CALL   FAR PTR PRINT_CHAR
-                           223                     
-00C8 8A0E5600              224             MOV CL, DS:KBD_BUFFER_SEEK
-00CC 80F900                225             CMP CL,0H
-00CF 7412                  226             JZ ADD_TO_BUFFER
-                           227                                     
-00D1 32ED                  228                     XOR CH,CH
-00D3 8BF1                  229             MOV SI, CX
-00D5 8A0E4C00              230             MOV CL, KBD_BUFFER
-                           231                     ;COMPARE WITH VALUE AT SEEK
-00D9 3AC8                  232             CMP CL,AL
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    05:09:37  11/29/;2  PAGE    6
+                           194     
+                           195                     ;MOV CH, AL     ;save data byte to ground next row ;WAT?
+009F 8AC1                  196                     MOV AL,CL
+00A1 BA8200                197                     MOV DX, PORTC   ;port C address to DX; 
+00A4 EE                    198                     OUT DX, AL      ;give positive logic to one of the rows
+00A5 A26400                199                     MOV DS:KBD_OUTPUT, AL   
+                           200             
+00A8 BA8100                201                     MOV DX, PORTB   ;port B address to DX  
+00AB EC                    202                     IN  AL,DX       ;read input port for key closure
+                           203                     
+                           204                     
+                           205                     ;mov al,101b; change later
+00AC 2407                  206                     AND AL, 07H     ;Mask D4-D7
+00AE 3C07                  207                     CMP AL,07H
+00B0 7463                  208                     JE RETPOINT
+                           209                     ;ERROR CHECK
+00B2 3C06                  210                     CMP AL,0110B
+00B4 740B                  211                     JE VALIDATED
+00B6 3C05                  212                     CMP AL,0101B
+00B8 7407                  213                     JE VALIDATED
+00BA 3C03                  214                     CMP AL,011B
+00BC 7403                  215                     JE VALIDATED
+00BE EB5590                216                     JMP RETPOINT
+                           217                     
+00C1                       218     VALIDATED:              
+00C1 9A2101----     R      219                     CALL FAR PTR KBD_PROCESS
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    06:09:31  11/29/;2  PAGE    6
 
 
 LOC  OBJ                  LINE     SOURCE
 
-00DB 7406                  233                     JZ  ADD_TO_BUFFER
-                           234                     
-00DD 32C9                  235                     XOR CL,CL
-00DF 880E5600              236                     MOV DS:KBD_BUFFER_SEEK, CL
-                           237                                     
-                           238     
-00E3                       239     ADD_TO_BUFFER:
-                           240             ;;PUT AL INTO SI SO WE CAN PUT CURRENT CHAR IN THE BUFFER 
-00E3 32ED                  241                     XOR CH,CH
-00E5 8BF1                  242                     MOV SI,CX
-00E7 88444C                243                     MOV DS:KBD_BUFFER[SI],AL
-00EA FE065600              244                     INC DS:KBD_BUFFER_SEEK
-                           245     
-00EE B98813                246                     mov cx, 5000
-00F1                       247     Debounce:
-00F1 90                    248                     nop
-00F2 E2FD                  249                     loop debounce
-00F4                       250     CHECKER_SEEK:
-00F4 8A0E5600              251                     MOV CL, DS:KBD_BUFFER_SEEK
-00F8 80F907                252                     CMP CL,KBD_BUFFER_LEN
-                           253                     ;ADD CL,48
-                           254                     ;MOV AL,CL
-                           255                     ;CALL FAR PTR PRINT_CHAR
-                           256                     
-00FB 7513                  257                     JNE RETPOINT
-                           258                     ;RESET KBD_BUFFER_SEEK
-                           259                     ;AL CONTAINS CHAR
-00FD A25900                260                     MOV DS:KBD_INPUT, AL
-0100 9A0000----     E      261                     CALL    FAR PTR PRINT_CHAR
-0105 9A9601----     R      262                     CALL FAR PTR ADD_LED_BUFFER
-010A 32C9                  263                     XOR CL,CL
-                           264                     ;BUFFER_SEEK IS RESET
-010C 880E5600              265                     MOV DS:KBD_BUFFER_SEEK, CL
-0110                       266     RETPOINT:       
-0110 FE065700              267             INC DS:KBD_ROW_COUNTER
-                           268             
-0114 E976FF                269             JMP NEXT_ROW
-                           270                     
-                           271             
-0117 58                    272             POP AX
-0118 5B                    273             POP BX
-0119 59                    274             POP CX
-011A 5A                    275             POP DX
-011B CB                    276             RET
-                           277     KEYBOARD ENDP
-                           278     
-011C                       279     KBD_PROCESS             PROC    FAR
-                           280                     ;0000 0101 => 1111 1010 => 0000 0010  => 0 , 1, 10   
-011C F6D0                  281                     NOT AL
-011E 2407                  282                     AND AL, 07H; MASK OTHER BLOODY BITS OMGOMGOMG
-0120 D0E8                  283                     SHR AL,01 ; DIVIDE AL BY 2. TO GET COL NUMBER
-0122 8AD0                  284                     MOV DL,AL ; TEMP STORE AL IE PORTB INPUT AKA COL NUMBER
-                           285                     
-0124 A05700                286                     mov Al,DS:KBD_ROW_COUNTER ; ROW COUNT MOVED TO AL
-0127 B603                  287                     MOV DH,03 ; TO MULTIPLY BY 3
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    05:09:37  11/29/;2  PAGE    7
+                           220                     ;Bl CONTAINS iNDEX OF ARRAY WITH CURRENT KEY
+                           221             ;; | SEEK==0 = ADD_TO_BUFFER
+                           222             ;; | BUFFER[SEEK]== BL = ADD_TO_BUFFER
+                           223             ;; | ELSE = (ADD_TO_BUFFER) & (SEEK 0) AKA RESET
+                           224                     ;JMP NUMBERS
+                           225     
+00C6                       226     NUMBERS:
+00C6 32FF                  227                     XOR BH, BH
+00C8 8A472D                228                     MOV AL,DS:array[BX] ; Stores character in AL (?)
+00CB 32E4                  229                     XOR AH,AH
+                           230                     ;CALL   FAR PTR PRINT_CHAR
+                           231                     
+00CD 8A0E6200              232             MOV CL, DS:KBD_BUFFER_SEEK
+00D1 80F900                233             CMP CL,0H
+00D4 7412                  234             JZ ADD_TO_BUFFER
+                           235                                     
+00D6 32ED                  236                     XOR CH,CH
+00D8 8BF1                  237             MOV SI, CX
+00DA 8A0E5800              238             MOV CL, KBD_BUFFER
+                           239                     ;COMPARE WITH VALUE AT SEEK
+00DE 3AC8                  240             CMP CL,AL
+00E0 7406                  241                     JZ  ADD_TO_BUFFER
+                           242                     
+00E2 32C9                  243                     XOR CL,CL
+00E4 880E6200              244                     MOV DS:KBD_BUFFER_SEEK, CL
+                           245                                     
+                           246     
+00E8                       247     ADD_TO_BUFFER:
+                           248             ;;PUT AL INTO SI SO WE CAN PUT CURRENT CHAR IN THE BUFFER 
+00E8 32ED                  249                     XOR CH,CH
+00EA 8BF1                  250                     MOV SI,CX
+00EC 884458                251                     MOV DS:KBD_BUFFER[SI],AL
+00EF FE066200              252                     INC DS:KBD_BUFFER_SEEK
+                           253     
+00F3 B98813                254                     mov cx, 5000
+00F6                       255     Debounce:
+00F6 90                    256                     nop
+00F7 E2FD                  257                     loop debounce
+00F9                       258     CHECKER_SEEK:
+00F9 8A0E6200              259                     MOV CL, DS:KBD_BUFFER_SEEK
+00FD 80F907                260                     CMP CL,KBD_BUFFER_LEN
+                           261                     ;ADD CL,48
+                           262                     ;MOV AL,CL
+                           263                     ;CALL FAR PTR PRINT_CHAR
+                           264                     
+0100 7513                  265                     JNE RETPOINT
+                           266                     ;RESET KBD_BUFFER_SEEK
+                           267                     ;AL CONTAINS CHAR
+0102 A26500                268                     MOV DS:KBD_INPUT, AL
+0105 9A0000----     E      269                     CALL    FAR PTR PRINT_CHAR
+010A 9A4E02----     R      270                     CALL FAR PTR ADD_LED_BUFFER
+010F 32C9                  271                     XOR CL,CL
+                           272                     ;BUFFER_SEEK IS RESET
+0111 880E6200              273                     MOV DS:KBD_BUFFER_SEEK, CL
+0115                       274     RETPOINT:       
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    06:09:31  11/29/;2  PAGE    7
 
 
 LOC  OBJ                  LINE     SOURCE
 
-                           288                     ;MULTIPLY THE FUCKER
-0129 F6E6                  289                     MUL DH
-                           290                     ; RESULT IN AX
-                           291                     
-                           292                     
-                           293                     ; NUMBER  <= 9 
-012B 02C2                  294                     ADD AL, DL ;ADD row*3 NO TO COL NUMBER
-012D 8AD8                  295                     MOV BL,AL
-012F 32FF                  296                     XOR BH,BH
-                           297                     ;Bl CONTAINS iNDEX OF ARRAY WITH CURRENT KEY
-                           298             ;; | SEEK==0 = ADD_TO_BUFFER
-                           299             ;; | BUFFER[SEEK]== BL = ADD_TO_BUFFER
-                           300             ;; | ELSE = (ADD_TO_BUFFER) & (SEEK 0) AKA RESET
-                           301     
-                           302             
-0131 CB                    303     RET
-                           304     KBD_PROCESS             ENDP
-0132                       305     TIMER2_ACTION   PROC    FAR
-0132 50                    306                     PUSH    AX
-0133 1E                    307                     PUSH    DS
-0134 53                    308                     PUSH    BX
-0135 51                    309                     PUSH    CX
-                           310     
-                           311                     
-                           312     ;CALL FAR PTR DISPLAY_BCD
-                           313     ;CALL FAR PTR KEYBOARD  
-0136 9A5701----     R      314     CALL FAR PTR DISPLAY_LED
-                           315     ;CALL FAR PTR ADD_LED_BUFFER
-013B FE0E1600              316     DEC     DS:T_COUNT
-013F 7511                  317                     JNZ     T_NEXT1
-0141 A01700                318                     MOV     AL,DS:T_COUNT_SET
-0144 A21600                319                     MOV     DS:T_COUNT,AL
-                           320     
-0147 B91400                321                     MOV     CX,20
-014A BB0000                322                     MOV     BX,0H
-014D                       323     T_NEXT0:
-014D 8A07                  324                     MOV     AL,DS:TIMER0_MESS[BX]
-                           325             
-014F 43                    326                     INC     BX
-                           327             ;;              CALL    FAR PTR PRINT_CHAR
-0150 E2FB                  328                     LOOP    T_NEXT0
-                           329     ;       kanmy@comp.nus.edu.sg
-0152                       330     T_NEXT1:
-                           331     
-                           332     
-0152 59                    333                     POP     CX
-0153 5B                    334                     POP     BX
-0154 1F                    335                     POP     DS
-0155 58                    336                     POP     AX
-0156 CB                    337                     RET
-                           338     TIMER2_ACTION   ENDP
+0115 FE066300              275             INC DS:KBD_ROW_COUNTER
+                           276             
+0119 E976FF                277             JMP NEXT_ROW
+                           278                     
+                           279             
+011C 58                    280             POP AX
+011D 5B                    281             POP BX
+011E 59                    282             POP CX
+011F 5A                    283             POP DX
+0120 CB                    284             RET
+                           285     KEYBOARD ENDP
+                           286     
+0121                       287     KBD_PROCESS             PROC    FAR
+                           288                     ;0000 0101 => 1111 1010 => 0000 0010  => 0 , 1, 10   
+0121 F6D0                  289                     NOT AL
+0123 2407                  290                     AND AL, 07H; MASK OTHER BLOODY BITS OMGOMGOMG
+0125 D0E8                  291                     SHR AL,01 ; DIVIDE AL BY 2. TO GET COL NUMBER
+0127 8AD0                  292                     MOV DL,AL ; TEMP STORE AL IE PORTB INPUT AKA COL NUMBER
+                           293                     
+0129 A06300                294                     mov Al,DS:KBD_ROW_COUNTER ; ROW COUNT MOVED TO AL
+012C B603                  295                     MOV DH,03 ; TO MULTIPLY BY 3
+                           296                     ;MULTIPLY THE FUCKER
+012E F6E6                  297                     MUL DH
+                           298                     ; RESULT IN AX
+                           299                     
+                           300                     
+                           301                     ; NUMBER  <= 9 
+0130 02C2                  302                     ADD AL, DL ;ADD row*3 NO TO COL NUMBER
+0132 8AD8                  303                     MOV BL,AL
+0134 32FF                  304                     XOR BH,BH
+                           305                     ;Bl CONTAINS iNDEX OF ARRAY WITH CURRENT KEY
+                           306             ;; | SEEK==0 = ADD_TO_BUFFER
+                           307             ;; | BUFFER[SEEK]== BL = ADD_TO_BUFFER
+                           308             ;; | ELSE = (ADD_TO_BUFFER) & (SEEK 0) AKA RESET
+                           309     
+                           310             
+0136 CB                    311     RET
+                           312     KBD_PROCESS             ENDP
+                           313     
+0137                       314     KEYBOARD2 PROC FAR
+                           315     
+0137 52                    316                     PUSH    DX
+0138 51                    317                     PUSH    CX
+0139 53                    318                     PUSH    BX
+013A 50                    319                     PUSH    AX
+                           320                     
+                           321     
+013B                       322     INIT2:          
+                           323                     
+                           324                     
+013B B1F7                  325                     MOV CL, 0F7H    ;STORES OUTPUT FOR ROW COUNTER;
+                           326                     ;MOV AL,0FEH ; 1110 1111
+013D B500                  327                     MOV CH, 0H      ;set row counter
+013F 882E6700              328                     MOV DS:KBD_ROW_COUNTER2,CH
+0143 880E6800              329                     MOV DS:KBD_OUTPUT2, CL
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    06:09:31  11/29/;2  PAGE    8
+
+
+LOC  OBJ                  LINE     SOURCE
+
+                           330     
+                           331                     
+0147                       332     NEXT_ROW2:
+0147 A06700                333                     MOV AL,DS:KBD_ROW_COUNTER2
+                           334             
+014A 3C04                  335                     CMP AL,04
+014C 7DED                  336                     JGE INIT2
+014E 8A0E6800              337                     MOV CL,DS:KBD_OUTPUT2 
+0152 D0C1                  338                     ROL CL, 01H       ;rotate AL to ground next row/ al HAS 8 BITS. so mu
+                                   st JMP BACK TO WAIT
                            339     
-0157                       340     DISPLAY_LED     PROC    FAR
-0157 50                    341             PUSH AX
-0158 53                    342             PUSH BX
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    05:09:37  11/29/;2  PAGE    8
+                           340                     ;MOV CH, AL     ;save data byte to ground next row ;WAT?
+0154 8AC1                  341                     MOV AL,CL
+0156 BA8200                342                     MOV DX, PORTC   ;port C address to DX; 
+0159 EE                    343                     OUT DX, AL      ;give positive logic to one of the rows
+015A A26800                344                     MOV DS:KBD_OUTPUT2, AL  
+                           345             
+015D BA8100                346                     MOV DX, PORTB   ;port B address to DX  
+0160 EC                    347                     IN  AL,DX       ;read input port for key closure
+                           348                     
+                           349                     
+                           350                     ;mov al,101b; change later
+0161 2438                  351                     AND AL, 38H     ;Mask D4-D7  00xx x000
+0163 C0E803                352                     SHR AL,03
+0166 3C07                  353                     CMP AL,07H
+0168 745E                  354                     JE RETPOINT2
+                           355                     ;ERROR CHECK
+016A 3C06                  356                     CMP AL,0110B
+016C 740B                  357                     JE VALIDATED2
+016E 3C05                  358                     CMP AL,0101B
+0170 7407                  359                     JE VALIDATED2
+0172 3C03                  360                     CMP AL,011B
+0174 7403                  361                     JE VALIDATED2
+0176 EB5090                362                     JMP RETPOINT2
+                           363                     
+0179                       364     VALIDATED2:             
+0179 9AD401----     R      365                     CALL FAR PTR KBD_PROCESS2
+                           366                     ;Bl CONTAINS iNDEX OF ARRAY WITH CURRENT KEY
+                           367             ;; | SEEK==0 = ADD_TO_BUFFER
+                           368             ;; | BUFFER[SEEK]== BL = ADD_TO_BUFFER
+                           369             ;; | ELSE = (ADD_TO_BUFFER) & (SEEK 0) AKA RESET
+                           370                     ;JMP NUMBERS
+                           371     
+017E                       372     NUMBERS2:
+017E 32FF                  373                     XOR BH, BH
+0180 8A4739                374                     MOV AL,DS:array2[BX] ; Stores character in AL (?)
+0183 32E4                  375                     XOR AH,AH
+                           376                     ;CALL   FAR PTR PRINT_CHAR
+                           377                     
+0185 8A0E7300              378             MOV CL, DS:KBD_BUFFER_SEEK2
+0189 80F900                379             CMP CL,0H
+018C 7412                  380             JZ ADD_TO_BUFFER2
+                           381                                     
+018E 32ED                  382                     XOR CH,CH
+0190 8BF1                  383             MOV SI, CX
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    06:09:31  11/29/;2  PAGE    9
 
 
 LOC  OBJ                  LINE     SOURCE
 
-0159 51                    343             PUSH CX
-015A 52                    344             PUSH DX
-                           345             ; CONVERTS CUR_LED TO SIGNAL
-015B 8A1E4900              346             MOV BL, DS:CUR_LED
-015F B0FE                  347             MOV AL,0FEH
-0161 8ACB                  348             MOV CL, BL
-0163 D2C0                  349             ROL AL,CL
-                           350             
-0165 BA0001                351             MOV DX, LED_SELECT
-0168 EE                    352             OUT DX, AL
-                           353             
-0169 32FF                  354             XOR BH,BH
-016B 8A4743                355             MOV AL, DS:LED_BUFFER[BX]
-016E BA8001                356             MOV DX, LED_OUTPUT
-0171 EE                    357             OUT DX,AL
-                           358     
-0172 B99001                359             MOV CX, 400
-0175                       360     SUSTAIN:        
-                           361             
-0175 90                    362             NOP
-0176 E2FD                  363             LOOP SUSTAIN
-                           364             
-                           365     ; CLEAR THE FUCKER
-0178 B000                  366             MOV AL, 0H
-017A BA8001                367             MOV DX, LED_OUTPUT
-017D EE                    368             OUT DX, AL
-                           369             
-017E A04900                370             MOV AL, DS:CUR_LED
-0181 3C05                  371             CMP AL, 5
-0183 7D07                  372             JGE RESTORE
-0185 FE064900              373             INC DS:CUR_LED
-0189 EB0690                374             JMP EXIT
-018C                       375     RESTORE:
-018C 32C0                  376             XOR AL,AL
-018E A24900                377             MOV DS:CUR_LED, AL
-                           378             
-0191                       379     EXIT:
-0191 5A                    380             POP DX
-0192 59                    381             POP CX
-0193 5B                    382             POP BX
-0194 58                    383             POP AX
-0195 CB                    384             RET
-                           385     
-                           386     DISPLAY_LED ENDP
-                           387     
-0196                       388     ADD_LED_BUFFER  PROC    FAR
-0196 50                    389             PUSH AX
-0197 53                    390             PUSH BX
-0198 51                    391             PUSH CX
-0199 52                    392             PUSH DX
-019A A05A00                393             MOV AL, DS:LED_CURSOR
-019D 3C06                  394             CMP AL, 06
-019F 7C08                  395             JL INCREMENT
-01A1 32C0                  396             XOR AL, AL
-01A3 A25A00                397             MOV DS:LED_CURSOR,AL
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    05:09:37  11/29/;2  PAGE    9
+0192 8A0E6900              384             MOV CL, KBD_BUFFER2
+                           385                     ;COMPARE WITH VALUE AT SEEK
+0196 3AC8                  386             CMP CL,AL
+0198 7406                  387                     JZ  ADD_TO_BUFFER2
+                           388                     
+019A 32C9                  389                     XOR CL,CL
+019C 880E7300              390                     MOV DS:KBD_BUFFER_SEEK2, CL
+                           391                                     
+                           392     
+01A0                       393     ADD_TO_BUFFER2:
+                           394             ;;PUT AL INTO SI SO WE CAN PUT CURRENT CHAR IN THE BUFFER 
+01A0 32ED                  395                     XOR CH,CH
+01A2 8BF1                  396                     MOV SI,CX
+01A4 884469                397                     MOV DS:KBD_BUFFER2[SI],AL
+01A7 FE067300              398                     INC DS:KBD_BUFFER_SEEK2
+                           399     
+01AB B98813                400                     mov cx, 5000
+01AE                       401     Debounce2:
+01AE 90                    402                     nop
+01AF E2FD                  403                     loop debounce2
+01B1                       404     CHECKER_SEEK2:
+01B1 8A0E7300              405                     MOV CL, DS:KBD_BUFFER_SEEK2
+01B5 80F902                406                     CMP CL,KBD_BUFFER_LEN2
+                           407                     ;ADD CL,48
+                           408                     ;MOV AL,CL
+                           409                     ;CALL FAR PTR PRINT_CHAR
+                           410                     
+01B8 750E                  411                     JNE RETPOINT2
+                           412                     ;RESET KBD_BUFFER_SEEK
+                           413                     ;AL CONTAINS CHAR
+01BA A27400                414                     MOV DS:KBD_INPUT2, AL
+01BD 9A0000----     E      415                     CALL    FAR PTR PRINT_CHAR
+                           416             ;;      CALL FAR PTR ADD_LED_BUFFER
+01C2 32C9                  417                     XOR CL,CL
+                           418                     ;BUFFER_SEEK IS RESET
+01C4 880E7300              419                     MOV DS:KBD_BUFFER_SEEK2, CL
+01C8                       420     RETPOINT2:      
+01C8 FE066700              421             INC DS:KBD_ROW_COUNTER2
+                           422             
+01CC E978FF                423             JMP NEXT_ROW2
+                           424                     
+                           425             
+01CF 58                    426             POP AX
+01D0 5B                    427             POP BX
+01D1 59                    428             POP CX
+01D2 5A                    429             POP DX
+01D3 CB                    430             RET
+                           431     KEYBOARD2 ENDP
+                           432     
+01D4                       433     KBD_PROCESS2            PROC    FAR
+                           434                     ;0000 0101 => 1111 1010 => 0000 0010  => 0 , 1, 10   
+01D4 F6D0                  435                     NOT AL
+01D6 2407                  436                     AND AL, 07H; MASK OTHER BLOODY BITS OMGOMGOMG
+01D8 D0E8                  437                     SHR AL,01 ; DIVIDE AL BY 2. TO GET COL NUMBER
+01DA 8AD0                  438                     MOV DL,AL ; TEMP STORE AL IE PORTB INPUT AKA COL NUMBER
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    06:09:31  11/29/;2  PAGE   10
 
 
 LOC  OBJ                  LINE     SOURCE
 
-01A6 EB0590                398             JMP DONE_INC
-01A9                       399     INCREMENT:
-                           400             ;MOV AL, DS:KBD_INPUT
-                           401             ;CMP AL, '*'
-                           402             ;JNE DONE_INC
-01A9 FE065A00              403             INC DS:LED_CURSOR
-                           404             ;JMP ENDING
-01AD                       405     DONE_INC:       
-01AD 8A1E5900              406             MOV BL, DS:KBD_INPUT
-                           407             ;CONVERT ASCII TO NUMBER
-                           408             
-01B1 80EB30                409             SUB BL, 48
-01B4 32FF                  410             XOR BH, BH
-01B6 8A4739                411             MOV AL, DS:BCD[BX]
-01B9 8A1E5A00              412             MOV BL, DS:LED_CURSOR
-01BD 32FF                  413             XOR BH,BH
-01BF 884743                414             MOV DS:LED_BUFFER[BX],AL
-01C2                       415     ENDING: 
-01C2 5A                    416             POP DX
-01C3 59                    417             POP CX
-01C4 5B                    418             POP BX
-01C5 58                    419             POP AX
-01C6 CB                    420             RET
-                           421     ADD_LED_BUFFER  ENDP
-01C7                       422     CONVERT_TO_BCD  PROC    FAR
-                           423     
-                           424     
-01C7 53                    425             PUSH BX
-01C8 8AD8                  426             MOV BL,AL
-01CA 80FB0A                427             CMP BL,10
-01CD 7D03                  428             JGE GREATER_THAN_10
-01CF EB0390                429             JMP RETURN_BCD
-                           430     ;; IF BL(AL) > = 10 WE ADD 6. AH -> 10H 
-01D2                       431     GREATER_THAN_10:
-01D2 0406                  432             ADD AL,06
-                           433             
-01D4                       434     RETURN_BCD:
-                           435             
-01D4 5B                    436             POP BX
-01D5 CB                    437             RET
-                           438     CONVERT_TO_BCD  ENDP
-                           439     ;; 
-                           440     ;EXPECTS A 4BIT BCD DIGIT IN AL. RETURNS THE 7SEG CODE IN AL FOR THAT DIGIT     
-01D6                       441     BCD_TO_7SEG     PROC    FAR
-01D6 53                    442             PUSH BX
-                           443     
-                           444             ;; STORE AL TEMPORARILY IN BL
-01D7 8AD8                  445             MOV BL,AL
-                           446             
-01D9 32FF                  447             XOR BH,BH
-                           448             ;; GET THE BLTH INDEX OF THE BCD ARRAY IN DATA_SEG
-01DB 8A4739                449             MOV AL,DS:BCD[BX]
-01DE 5B                    450             POP BX
-01DF CB                    451             RET
-                           452     BCD_TO_7SEG     ENDP    
-8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    05:09:37  11/29/;2  PAGE   10
+                           439                     
+01DC A06700                440                     mov Al,DS:KBD_ROW_COUNTER2 ; ROW COUNT MOVED TO AL
+01DF B603                  441                     MOV DH,03 ; TO MULTIPLY BY 3
+                           442                     ;MULTIPLY THE FUCKER
+01E1 F6E6                  443                     MUL DH
+                           444                     ; RESULT IN AX
+                           445                     
+                           446                     
+                           447                     ; NUMBER  <= 9 
+01E3 02C2                  448                     ADD AL, DL ;ADD row*3 NO TO COL NUMBER
+01E5 8AD8                  449                     MOV BL,AL
+01E7 32FF                  450                     XOR BH,BH
+                           451                     ;Bl CONTAINS iNDEX OF ARRAY WITH CURRENT KEY
+                           452             ;; | SEEK==0 = ADD_TO_BUFFER
+                           453             ;; | BUFFER[SEEK]== BL = ADD_TO_BUFFER
+                           454             ;; | ELSE = (ADD_TO_BUFFER) & (SEEK 0) AKA RESET
+                           455     
+                           456             
+01E9 CB                    457     RET
+                           458     KBD_PROCESS2            ENDP
+                           459             
+01EA                       460     TIMER2_ACTION   PROC    FAR
+01EA 50                    461                     PUSH    AX
+01EB 1E                    462                     PUSH    DS
+01EC 53                    463                     PUSH    BX
+01ED 51                    464                     PUSH    CX
+                           465     
+                           466                     
+                           467     ;CALL FAR PTR DISPLAY_BCD
+                           468     ;CALL FAR PTR KEYBOARD  
+01EE 9A0F02----     R      469     CALL FAR PTR DISPLAY_LED
+                           470     ;CALL FAR PTR ADD_LED_BUFFER
+01F3 FE0E1600              471     DEC     DS:T_COUNT
+01F7 7511                  472                     JNZ     T_NEXT1
+01F9 A01700                473                     MOV     AL,DS:T_COUNT_SET
+01FC A21600                474                     MOV     DS:T_COUNT,AL
+                           475     
+01FF B91400                476                     MOV     CX,20
+0202 BB0000                477                     MOV     BX,0H
+0205                       478     T_NEXT0:
+0205 8A07                  479                     MOV     AL,DS:TIMER0_MESS[BX]
+                           480             
+0207 43                    481                     INC     BX
+                           482             ;;              CALL    FAR PTR PRINT_CHAR
+0208 E2FB                  483                     LOOP    T_NEXT0
+                           484     ;       kanmy@comp.nus.edu.sg
+020A                       485     T_NEXT1:
+                           486     
+                           487     
+020A 59                    488                     POP     CX
+020B 5B                    489                     POP     BX
+020C 1F                    490                     POP     DS
+020D 58                    491                     POP     AX
+020E CB                    492                     RET
+                           493     TIMER2_ACTION   ENDP
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    06:09:31  11/29/;2  PAGE   11
 
 
 LOC  OBJ                  LINE     SOURCE
 
-                           453     
-                           454     
-----                       455     CODE_SEG        ENDS
-                           456     END
+                           494     
+020F                       495     DISPLAY_LED     PROC    FAR
+020F 50                    496             PUSH AX
+0210 53                    497             PUSH BX
+0211 51                    498             PUSH CX
+0212 52                    499             PUSH DX
+                           500             ; CONVERTS CUR_LED TO SIGNAL
+0213 8A1E5500              501             MOV BL, DS:CUR_LED
+0217 B0FE                  502             MOV AL,0FEH
+0219 8ACB                  503             MOV CL, BL
+021B D2C0                  504             ROL AL,CL
+                           505             
+021D BA0001                506             MOV DX, LED_SELECT
+0220 EE                    507             OUT DX, AL
+                           508             
+0221 32FF                  509             XOR BH,BH
+0223 8A474F                510             MOV AL, DS:LED_BUFFER[BX]
+0226 BA8001                511             MOV DX, LED_OUTPUT
+0229 EE                    512             OUT DX,AL
+                           513     
+022A B99001                514             MOV CX, 400
+022D                       515     SUSTAIN:        
+                           516             
+022D 90                    517             NOP
+022E E2FD                  518             LOOP SUSTAIN
+                           519             
+                           520     ; CLEAR THE FUCKER
+0230 B000                  521             MOV AL, 0H
+0232 BA8001                522             MOV DX, LED_OUTPUT
+0235 EE                    523             OUT DX, AL
+                           524             
+0236 A05500                525             MOV AL, DS:CUR_LED
+0239 3C05                  526             CMP AL, 5
+023B 7D07                  527             JGE RESTORE
+023D FE065500              528             INC DS:CUR_LED
+0241 EB0690                529             JMP EXIT
+0244                       530     RESTORE:
+0244 32C0                  531             XOR AL,AL
+0246 A25500                532             MOV DS:CUR_LED, AL
+                           533             
+0249                       534     EXIT:
+0249 5A                    535             POP DX
+024A 59                    536             POP CX
+024B 5B                    537             POP BX
+024C 58                    538             POP AX
+024D CB                    539             RET
+                           540     
+                           541     DISPLAY_LED ENDP
+                           542     
+024E                       543     ADD_LED_BUFFER  PROC    FAR
+024E 50                    544             PUSH AX
+024F 53                    545             PUSH BX
+0250 51                    546             PUSH CX
+0251 52                    547             PUSH DX
+0252 A06600                548             MOV AL, DS:LED_CURSOR
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    06:09:31  11/29/;2  PAGE   12
+
+
+LOC  OBJ                  LINE     SOURCE
+
+0255 3C06                  549             CMP AL, 06
+0257 7C08                  550             JL INCREMENT
+0259 32C0                  551             XOR AL, AL
+025B A26600                552             MOV DS:LED_CURSOR,AL
+025E EB0590                553             JMP DONE_INC
+0261                       554     INCREMENT:
+                           555             ;MOV AL, DS:KBD_INPUT
+                           556             ;CMP AL, '*'
+                           557             ;JNE DONE_INC
+0261 FE066600              558             INC DS:LED_CURSOR
+                           559             ;JMP ENDING
+0265                       560     DONE_INC:       
+0265 8A1E6500              561             MOV BL, DS:KBD_INPUT
+                           562             ;CONVERT ASCII TO NUMBER
+                           563             
+0269 80EB30                564             SUB BL, 48
+026C 32FF                  565             XOR BH, BH
+026E 8A4745                566             MOV AL, DS:BCD[BX]
+0271 8A1E6600              567             MOV BL, DS:LED_CURSOR
+0275 32FF                  568             XOR BH,BH
+0277 88474F                569             MOV DS:LED_BUFFER[BX],AL
+027A                       570     ENDING: 
+027A 5A                    571             POP DX
+027B 59                    572             POP CX
+027C 5B                    573             POP BX
+027D 58                    574             POP AX
+027E CB                    575             RET
+                           576     ADD_LED_BUFFER  ENDP
+027F                       577     CONVERT_TO_BCD  PROC    FAR
+                           578     
+                           579     
+027F 53                    580             PUSH BX
+0280 8AD8                  581             MOV BL,AL
+0282 80FB0A                582             CMP BL,10
+0285 7D03                  583             JGE GREATER_THAN_10
+0287 EB0390                584             JMP RETURN_BCD
+                           585     ;; IF BL(AL) > = 10 WE ADD 6. AH -> 10H 
+028A                       586     GREATER_THAN_10:
+028A 0406                  587             ADD AL,06
+                           588             
+028C                       589     RETURN_BCD:
+                           590             
+028C 5B                    591             POP BX
+028D CB                    592             RET
+                           593     CONVERT_TO_BCD  ENDP
+                           594     ;; 
+                           595     ;EXPECTS A 4BIT BCD DIGIT IN AL. RETURNS THE 7SEG CODE IN AL FOR THAT DIGIT     
+028E                       596     BCD_TO_7SEG     PROC    FAR
+028E 53                    597             PUSH BX
+                           598     
+                           599             ;; STORE AL TEMPORARILY IN BL
+028F 8AD8                  600             MOV BL,AL
+                           601             
+0291 32FF                  602             XOR BH,BH
+                           603             ;; GET THE BLTH INDEX OF THE BCD ARRAY IN DATA_SEG
+8086/87/88/186 MACRO ASSEMBLER    TIMER                                                    06:09:31  11/29/;2  PAGE   13
+
+
+LOC  OBJ                  LINE     SOURCE
+
+0293 8A4745                604             MOV AL,DS:BCD[BX]
+0296 5B                    605             POP BX
+0297 CB                    606             RET
+                           607     BCD_TO_7SEG     ENDP    
+                           608     
+                           609     
+----                       610     CODE_SEG        ENDS
+                           611     END
 
 ASSEMBLY COMPLETE, NO ERRORS FOUND

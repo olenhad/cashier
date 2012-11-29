@@ -26,6 +26,7 @@ LED_OUTPUT	EQU	0180H
 PCSBA           EQU    0FFA4H ; Peripheral Chip Select Base Address
 MPCS            EQU    0FFA8H ; MMCS and PCS Alter Control Register
 KBD_BUFFER_LEN	EQU		7
+KBD_BUFFER_LEN2	EQU		2
 STACK_SEG	SEGMENT
 		DB	256 DUP(?)
 	TOS	LABEL	WORD
@@ -39,6 +40,7 @@ DATA_SEG	SEGMENT
 	T_COUNT_SET	DB	2FH
 	REC_MESS	DB	10,13,'Period of timer0 = '  
 	array       DB      '1','2','3','4','5','6','7','8','9','*','0','#'
+        ARRAY2      DB      'A','B','C','D','E','F','G','H','I','J','K','L' 
 	BCD	    DB 	3FH,06H,5BH,4FH,66H,6DH,7DH,07H,7FH,06FH
 	LED_BUFFER	DB	3fh,06h,5bh,4fh,66h,6dh
 	CUR_LED		DB	0H
@@ -52,6 +54,12 @@ DATA_SEG	SEGMENT
 	KBD_INPUT	DB	0H
 	
 	LED_CURSOR	DB	0H
+        KBD_ROW_COUNTER2 DB     0H
+        KBD_OUTPUT2      DB     0H
+        KBD_BUFFER2	DB	10 DUP(?)
+        KBD_BUFFER_SEEK2  DB      0H
+        KBD_INPUT2	DB	0H
+        
 ;=========================================================================
 ;Port B of the 8255 is used as the input port for the keybad
 ;Port C is used as the output and grounds the rows one by one
@@ -111,7 +119,7 @@ NEXT:
 	
 	;INC DS:CUR_LED
 	CALL FAR PTR KEYBOARD
-	
+	CALL FAR PTR KEYBOARD2
 	;CALL FAR PTR DISPLAY_LED
  JMP NEXT
 
@@ -302,6 +310,153 @@ KBD_PROCESS		PROC	FAR
 	
 RET
 KBD_PROCESS		ENDP
+
+KEYBOARD2 PROC FAR
+
+		PUSH    DX
+		PUSH	CX
+		PUSH 	BX
+		PUSH	AX
+		
+
+INIT2:		
+		
+		
+		MOV CL, 0F7H	;STORES OUTPUT FOR ROW COUNTER;
+		;MOV AL,0FEH ; 1110 1111
+		MOV CH, 0H	;set row counter
+		MOV DS:KBD_ROW_COUNTER2,CH
+		MOV DS:KBD_OUTPUT2, CL
+
+		
+NEXT_ROW2:
+		MOV AL,DS:KBD_ROW_COUNTER2
+	
+		CMP AL,04
+		JGE INIT2
+		MOV CL,DS:KBD_OUTPUT2 
+		ROL CL, 01H       ;rotate AL to ground next row/ al HAS 8 BITS. so must JMP BACK TO WAIT
+
+		;MOV CH, AL	;save data byte to ground next row ;WAT?
+		MOV AL,CL
+		MOV DX, PORTC	;port C address to DX; 
+		OUT DX, AL	;give positive logic to one of the rows
+		MOV DS:KBD_OUTPUT2, AL	
+        
+		MOV DX, PORTB	;port B address to DX  
+		IN  AL,DX	;read input port for key closure
+		
+		
+		;mov al,101b; change later
+		AND AL, 38H	;Mask D4-D7  00xx x000
+                SHR AL,03
+		CMP AL,07H
+	   	JE RETPOINT2
+		;ERROR CHECK
+		CMP AL,0110B
+		JE VALIDATED2
+		CMP AL,0101B
+		JE VALIDATED2
+		CMP AL,011B
+		JE VALIDATED2
+		JMP RETPOINT2
+		
+VALIDATED2:		
+		CALL FAR PTR KBD_PROCESS2
+		;Bl CONTAINS iNDEX OF ARRAY WITH CURRENT KEY
+        ;; | SEEK==0 = ADD_TO_BUFFER
+        ;; | BUFFER[SEEK]== BL = ADD_TO_BUFFER
+        ;; | ELSE = (ADD_TO_BUFFER) & (SEEK 0) AKA RESET
+		;JMP NUMBERS
+
+NUMBERS2:
+		XOR BH, BH
+		MOV AL,DS:array2[BX] ; Stores character in AL (?)
+		XOR AH,AH
+		;CALL	FAR PTR PRINT_CHAR
+		
+        MOV CL, DS:KBD_BUFFER_SEEK2
+        CMP CL,0H
+        JZ ADD_TO_BUFFER2
+				
+		XOR CH,CH
+        MOV SI, CX
+        MOV CL, KBD_BUFFER2
+		;COMPARE WITH VALUE AT SEEK
+        CMP CL,AL
+		JZ  ADD_TO_BUFFER2
+		
+		XOR CL,CL
+		MOV DS:KBD_BUFFER_SEEK2, CL
+                 		
+
+ADD_TO_BUFFER2:
+        ;;PUT AL INTO SI SO WE CAN PUT CURRENT CHAR IN THE BUFFER 
+                XOR CH,CH
+                MOV SI,CX
+                MOV DS:KBD_BUFFER2[SI],AL
+                INC DS:KBD_BUFFER_SEEK2
+
+		mov cx, 5000
+Debounce2:
+		nop
+		loop debounce2
+CHECKER_SEEK2:
+		MOV CL, DS:KBD_BUFFER_SEEK2
+		CMP CL,KBD_BUFFER_LEN2
+		;ADD CL,48
+		;MOV AL,CL
+		;CALL FAR PTR PRINT_CHAR
+		
+		JNE RETPOINT2
+		;RESET KBD_BUFFER_SEEK
+		;AL CONTAINS CHAR
+		MOV DS:KBD_INPUT2, AL
+		CALL	FAR PTR PRINT_CHAR
+        ;; 	CALL FAR PTR ADD_LED_BUFFER
+		XOR CL,CL
+		;BUFFER_SEEK IS RESET
+		MOV DS:KBD_BUFFER_SEEK2, CL
+RETPOINT2:	
+	INC DS:KBD_ROW_COUNTER2
+	
+	JMP NEXT_ROW2
+		
+	
+	POP AX
+	POP BX
+	POP CX
+	POP DX
+	RET
+KEYBOARD2 ENDP
+
+KBD_PROCESS2		PROC	FAR
+		;0000 0101 => 1111 1010 => 0000 0010  => 0 , 1, 10   
+		NOT AL
+		AND AL, 07H; MASK OTHER BLOODY BITS OMGOMGOMG
+		SHR AL,01 ; DIVIDE AL BY 2. TO GET COL NUMBER
+		MOV DL,AL ; TEMP STORE AL IE PORTB INPUT AKA COL NUMBER
+		
+		mov Al,DS:KBD_ROW_COUNTER2 ; ROW COUNT MOVED TO AL
+		MOV DH,03 ; TO MULTIPLY BY 3
+		;MULTIPLY THE FUCKER
+		MUL DH
+		; RESULT IN AX
+		
+		
+		; NUMBER  <= 9 
+		ADD AL, DL ;ADD row*3 NO TO COL NUMBER
+		MOV BL,AL
+		XOR BH,BH
+		;Bl CONTAINS iNDEX OF ARRAY WITH CURRENT KEY
+        ;; | SEEK==0 = ADD_TO_BUFFER
+        ;; | BUFFER[SEEK]== BL = ADD_TO_BUFFER
+        ;; | ELSE = (ADD_TO_BUFFER) & (SEEK 0) AKA RESET
+
+	
+RET
+KBD_PROCESS2		ENDP
+        
 TIMER2_ACTION	PROC	FAR
 		PUSH	AX
 		PUSH	DS
