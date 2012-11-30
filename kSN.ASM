@@ -17,6 +17,8 @@ LED_SELECT	EQU	0100H
 LED_OUTPUT	EQU	0180H 
 PCSBA           EQU    0FFA4H ; Peripheral Chip Select Base Address
 MPCS            EQU    0FFA8H ; MMCS and PCS Alter Control Register
+MMCS EQU 0FFA6H
+PCS4 EQU 200H
 KBD_BUFFER_LEN	EQU		11
 KBD_BUFFER_LEN2	EQU		9
 KBD_NEW EQU 01H
@@ -46,6 +48,8 @@ CASHIER_GET_PRICE	EQU 5
 CASHIER_DISPLAY_PRICE	EQU 6
 CASHIER_EOT_PROMPT	EQU 7
 CASHIER_EOT	EQU	8
+SOUND_INPUT_LEN EQU 36
+TIMER_COUNTER_LEN   EQU 24
 
 STACK_SEG	SEGMENT
 		DB	256 DUP(?)
@@ -78,7 +82,7 @@ DATA_SEG	SEGMENT
         KBD_ROW_COUNTER2 DB     0H
         KBD_OUTPUT2      DB     0H
         KBD_INPUT2	DB	0H
-    
+    TIMER_COUNTER   DB  0H
 	
 ;=========================================================================
 ;Port B of the 8255 is used as the input port for the keybad
@@ -96,6 +100,13 @@ DATA_SEG	SEGMENT
         ADDR_INCOM_COUNT      DB      0
         ADDR_COUNT      DB      0
         ADDR_BUFFER     DB      4 DUP(?)
+            SOUND_SEGNUM DW 8000H
+    SOUND_OFFSET DW 0
+    SOUND_DATA DB 0
+        SOUND_BASE_ADDR     DW  0, 4713,8481,11945,15315,18317,21614,26120,30013,31809,36107,39110,43768,47646,51847,56124
+        endsize         DW  4712,8480,11944,15314,18316,21613,26119,30012,31808,36106,39109,43767,47645,51846,56123,60774
+    SOUND_INPUT DW  0,1,8,3,0,1,2,3,7,8,9,7,8,9,2,3,5,6
+    SOUND_INPUT_SEEK    DB 0
 	
 	;; network state machine:
         ;; READY
@@ -132,9 +143,13 @@ CODE_SEG	SEGMENT
 ASSUME	CS:CODE_SEG, SS:STACK_SEG, DS:DATA_SEG
 
 START:
+; initialize the ROM addr range
+MOV DX, MMCS
+MOV AX, 8003H
+OUT DX, AX
  ; Initialize MPCS to MAP peripheral to IO address
          MOV DX, MPCS
-         MOV AX, 0083H
+         MOV AX, 4083H
          OUT DX, AL
 ; PCSBA initial, set the serial port start from 00H
          MOV DX, PCSBA
@@ -172,13 +187,10 @@ MOV AL, 82H       ;mode 0, A - out, B-in ;changed value of CW from 82H
                 STI
 
 NEXT:
-       ; MOV AX,DS:DISPLAY_NUM
-	
-	;INC DS:CUR_LED
-	;CALL FAR PTR KEYBOARD2
+
 	CALL FAR PTR KEYBOARD
         call far ptr keyboard2
-      	CALL FAR PTR CASHIER_STATE_M 
+      ;	CALL FAR PTR CASHIER_STATE_M 
 	
         
  JMP NEXT
@@ -789,26 +801,18 @@ TIMER2_ACTION	PROC	FAR
 		PUSH	CX
 
 		
-;CALL FAR PTR DISPLAY_BCD
-;CALL FAR PTR KEYBOARD	
-CALL FAR PTR DISPLAY_LED
-;CALL FAR PTR ADD_LED_BUFFER
-DEC	DS:T_COUNT
-		JNZ	T_NEXT1
-		MOV	AL,DS:T_COUNT_SET
-		MOV	DS:T_COUNT,AL
+        INC DS:TIMER_COUNTER
+        CMP DS:TIMER_COUNTER, TIMER_COUNTER_LEN
+        JNE SKIP_RESET
+        MOV DS:TIMER_COUNTER,0
+        CALL FAR PTR DISPLAY_LED            
+        JMP EXIT_TIMER_ACTION
 
-		MOV	CX,20
-		MOV	BX,0H
-T_NEXT0:
-		MOV	AL,DS:TIMER0_MESS[BX]
-        
-		INC	BX
-        ;; 		CALL 	FAR PTR PRINT_CHAR
-		LOOP	T_NEXT0
-;	
-T_NEXT1:
+SKIP_RESET:
+        CALL FAR PTR SOUND_OUTPUT_CALLBACK
 
+
+EXIT_TIMER_ACTION:
 
 		POP	CX
 		POP	BX
@@ -836,7 +840,7 @@ DISPLAY_LED	PROC	FAR
 	MOV DX, LED_OUTPUT
 	OUT DX,AL
 
-	MOV CX, 400
+	MOV CX, 200
 SUSTAIN:	
 	
 	NOP
@@ -1014,5 +1018,89 @@ LOOP_BB:
         RET
 PRINT_BARCODE_BUFFER ENDP
 
+SOUND_OUTPUT_CALLBACK   PROC FAR
+        PUSH    AX
+        PUSH    DS
+        PUSH    BX
+        PUSH    CX
+        PUSH    DX
+        PUSH    SI
+        PUSH    DI
+                MOV AX, DATA_SEG
+                MOV DS, AX
+
+        ;T_NEXT1:
+                CMP SOUND_OFFSET, 0
+                JNE PLAY
+                MOV AL, DS:SOUND_INPUT_SEEK
+                XOR AH,AH
+                MOV SI, AX      
+                MOV BX, SOUND_INPUT[SI]
+                ;SUB BX,48
+                ;mov bx,18
+                ADD BX, BX
+                
+                MOV AX,DS:SOUND_BASE_ADDR[BX]
+                MOV DS:SOUND_OFFSET,AX
+                
+                
+                
+        PLAY:   
+
+                
+                MOV BL, DS:SOUND_INPUT_SEEK
+                XOR BH, BH
+                MOV BX, DS:SOUND_INPUT[BX]
+                ADD BX, BX
+                
+                mov cx, endsize[bx]
+                
+                ADD SOUND_OFFSET, 1
+                CMP SOUND_OFFSET, cx
+                JNE SKIP
+                
+                INC DS:SOUND_INPUT_SEEK
+                INC DS:SOUND_INPUT_SEEK
+                MOV AL, SOUND_INPUT_SEEK
+                CMP AL, SOUND_INPUT_LEN
+                JL RESET_BASE_ADDR
+                MOV DS:SOUND_INPUT_SEEK, 0
+        RESET_BASE_ADDR:        
+                
+                MOV BL, DS:SOUND_INPUT_SEEK
+                XOR BH,BH
+                ; SOUND i BLOODY WNAT TO PLAY
+                MOV BX, SOUND_INPUT[BX]
+                ADD BX,BX
+                ; THE BLOODY OFFSET ADDR OF THAT SOUND
+                MOV AX, DS:SOUND_BASE_ADDR[BX]
+                MOV DS:SOUND_OFFSET, AX
+                ;ADD SOUND_SEGNUM, 1
+        SKIP:
+                MOV SI, SOUND_OFFSET
+                
+                ;MOV AX, SOUND_SEGNUM
+                MOV AX, 8000H
+                MOV DS, AX
+                
+                ;MOV AX, SI
+                MOV AL, DS:[SI]
+                MOV DX, PCS4
+                OUT DX, AL
+                
+                
+
+                
+        EXIT_SOUND:     
+        POP DI
+        POP SI
+        POP DX
+        POP CX
+        POP BX
+        POP DS
+        POP AX
+        RET
+
+SOUND_OUTPUT_CALLBACK ENDP
 CODE_SEG	ENDS
 END

@@ -1,18 +1,6 @@
 $mod186
 NAME MISC
-; Interrupt and misc routines for uPD70208 microcomputer system
-;
-; Filename:	MISC.ASM
-;
-; Author: 	Dr Tay Teng Tiow
-; Address:     	Department of Electrical Engineering 
-;         	National University of Singapore
-;		10, Kent Ridge Crescent
-;		Singapore 0511.	
-; Date:   	3rd November 1991
-;
-; This file contains proprietory information and cannot be copied 
-; or distributed without prior permission from the author.
+; YO
 ;---------------------------------------------------------------------------
 
 public	print_char, print_2hex, iodefine, set_timer2
@@ -198,7 +186,8 @@ Set_timer2      proc Far
 	mov dx, T2_CNT;
 	OUT DX, AL
 
-	MOV AX, 6000;
+;	MOV AX, 6000;
+	MOV AX, 250
 	MOV DX, T2_CA;
 	OUT DX, AL
 
