@@ -1,0 +1,10 @@
+!*.ASM
+!*.EXE
+!*.BAT
+*.MP2
+*.MP1
+*.HEX
+*.LST
+*.LNK
+*.OBJ
+
