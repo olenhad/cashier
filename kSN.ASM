@@ -364,10 +364,12 @@ EXIT_CASHIER_STATE:
 CASHIER_STATE_M 	ENDP
 
 SERIAL_REC_ACTION	PROC	FAR
+        PUSH    AX
 		PUSH	CX
 		PUSH 	BX
 		PUSH	DS
 
+        
 		MOV	BX,DATA_SEG		;initialize data segment register
 		MOV	DS,BX
 		MOV BL, DS:NET_STATE
@@ -392,11 +394,7 @@ CALL_BUFFERING:
                 CALL FAR PTR DATA_BUFFERING
                 JMP S_RET
 SELECTED:
-        ;; starts sending the barcode and quantity
-         ;       		MOV AL, DS:CASHIER_STATE
-          ;      		CMP AL, CASHIER_GET_PRICE
-		;; dON'T TRANSMIT ANYTHING UNLESS STATE IS GET_PRICE
-           ;     		JNE NOT_READY   
+
         
 		MOV CX, NET_PAYLOAD_LEN
 		MOV BX, 0
@@ -409,6 +407,7 @@ START_TRANSMIT:
 		MOV DS:NET_STATE, NET_BUFFERING
 		JMP	S_RET
 NOT_READY:
+        MOV DS:NET_STATE, NET_READY
 		MOV AL, NACK
 		CALL FAR PTR PRINT_CHAR
 		JMP S_RET
@@ -465,6 +464,7 @@ S_RET:
 		POP	DS
 		POP	BX
 		POP	CX
+        POP AX
 		RET
 SERIAL_REC_ACTION	ENDP
 

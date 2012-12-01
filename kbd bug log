@@ -57,15 +57,25 @@ YAY
 
 to do:
 
-check the network stale/new NOT
+check the network only transmit when ready NOT
 
-clear the leds after barcode and quantity 
+clear the leds after barcode and quantity DONE
 
-clean first led bug done
+clean first led bug DONE    
 
 end of transaction state
 
 generate bill
+
+
+expect:
+only SELECTED after q, else 'N'
+
+
+net state restoration is buggy
+
+
+
 
 
 
