@@ -87,6 +87,9 @@ make_packet doesn't update the packet with new data
 
 discovered: barcode buffer not updated
 
+new bug: writing ```ab does not get a response in 2nd iter
+
+
 
 
 
