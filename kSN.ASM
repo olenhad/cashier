@@ -74,14 +74,14 @@ DATA_SEG	SEGMENT
 		
 	KBD_ROW_COUNTER	DB	0H
 	;USED TO OUTPUT TO KBD
-	KBD_OUTPUT	DB	0H
+	KBD_OUTPUT	DB	07FH
 	
 	; CONTAINS KEYBOARD INPUT ASCII CHARS
 	KBD_INPUT	DB	0H
 	KBD_LATCH	DB	KBD_STALE
 	LED_CURSOR	DB	0H
         KBD_ROW_COUNTER2 DB     0H
-        KBD_OUTPUT2      DB     0H
+        KBD_OUTPUT2      DB     0F7H
         KBD_INPUT2	DB	0H
     TIMER_COUNTER   DB  0H
 	
@@ -108,7 +108,7 @@ DATA_SEG	SEGMENT
         endsize         DW  4712,8480,11944,15314,18316,21613,26119,30012,31808,36106,39109,43767,47645,51846,56123,60774
     SOUND_INPUT DW  0,1,8,3,0,1,2,3,7,8,9,7,8,9,2,3,5,6
     SOUND_INPUT_SEEK    DB 0
-	SOUND_ENABLE   DB SOUND_STATE_DISABLED
+	SOUND_ENABLE   DB SOUND_STATE_ENABLED
 	;; network state machine:
         ;; READY
         ;;  |
@@ -184,14 +184,14 @@ MOV AL, 82H       ;mode 0, A - out, B-in ;changed value of CW from 82H
 
    
 ;code
- call set_timer2
+ ;call set_timer2
                 STI
 
 NEXT:
 
 	CALL FAR PTR KEYBOARD
         call far ptr keyboard2
-      CALL FAR PTR CASHIER_STATE_M 
+  ;    CALL FAR PTR CASHIER_STATE_M 
 	
         
  JMP NEXT
@@ -503,19 +503,20 @@ KEYBOARD PROC FAR
 INIT:		
 		
 		
-		MOV CL, 07FH	;STORES OUTPUT FOR ROW COUNTER;
-		;MOV AL,0FEH ; 1111 1110
-		MOV CH, 0H	;set row counter
-		MOV DS:KBD_ROW_COUNTER,CH
-		MOV DS:KBD_OUTPUT, CL
-		jmp next_row
+        MOV AL,DS:KBD_ROW_COUNTER
+    
+        CMP AL,04
+        JL NEXT_ROW
+
 hacky_stuff:
-		jmp exit_kbd	
+        MOV CL, 07FH    ;STORES OUTPUT FOR ROW COUNTER;
+        ;MOV AL,0FEH ; 1111 1110
+        MOV CH, 0H  ;set row counter
+        MOV DS:KBD_ROW_COUNTER,CH
+        MOV DS:KBD_OUTPUT, CL
+
+		;jmp exit_kbd
 NEXT_ROW:
-		MOV AL,DS:KBD_ROW_COUNTER
-	
-		CMP AL,04
-		JGE hacky_stuff
 		MOV CL,DS:KBD_OUTPUT 
 		ROL CL, 01H       ;rotate AL to ground next row/ al HAS 8 BITS. so must JMP BACK TO WAIT
 
@@ -603,7 +604,7 @@ CHECKER_SEEK:
 RETPOINT:	
 	INC DS:KBD_ROW_COUNTER
 	
-	JMP NEXT_ROW
+	;JMP NEXT_ROW
 		
 exit_kbd:	
 	POP AX
@@ -653,24 +654,23 @@ KEYBOARD2 PROC FAR
 
 INIT2:		
 		
+		MOV AL,DS:KBD_ROW_COUNTER2
+    
+        CMP AL,04
+        JL NEXT_ROW2
 		
-		MOV CL, 0F7H	;STORES OUTPUT FOR ROW COUNTER;
-		;MOV AL,0FEH ; 1110 1111
-		MOV CH, 0H	;set row counter
-		MOV DS:KBD_ROW_COUNTER2,CH
-		MOV DS:KBD_OUTPUT2, CL
-	
 		;call far ptr print_char
-		jmp next_row2
+		
 hacky_shit:
-		jmp exit_kbd2
+        MOV CL, 0F7H    ;STORES OUTPUT FOR ROW COUNTER;
+        ;MOV AL,0FEH ; 1110 1111
+        MOV CH, 0H  ;set row counter
+        MOV DS:KBD_ROW_COUNTER2,CH
+        MOV DS:KBD_OUTPUT2, CL
+
 		
 NEXT_ROW2:
-		MOV AL,DS:KBD_ROW_COUNTER2
-	
 
-		CMP AL,04
-		JGE hacky_shit
 		MOV CL,DS:KBD_OUTPUT2 
 		ROL CL, 01H       ;rotate AL to ground next row/ al HAS 8 BITS. so must JMP BACK TO WAIT
 
@@ -757,7 +757,6 @@ CHECKER_SEEK2:
 RETPOINT2:	
 	INC DS:KBD_ROW_COUNTER2
 	
-	JMP NEXT_ROW2
 		
 exit_kbd2:	
 	POP AX
@@ -814,7 +813,7 @@ TIMER2_ACTION	PROC	FAR
 SKIP_RESET:
         CMP DS:SOUND_ENABLE, SOUND_STATE_ENABLED
         JNE EXIT_TIMER_ACTION
-        CALL FAR PTR SOUND_OUTPUT_CALLBACK
+      ;CALL FAR PTR SOUND_OUTPUT_CALLBACK
 
 
 EXIT_TIMER_ACTION:
@@ -1071,7 +1070,7 @@ SOUND_OUTPUT_CALLBACK   PROC FAR
                 JL RESET_BASE_ADDR
 
                 MOV DS:SOUND_INPUT_SEEK, 0
-                MOV DS:SOUND_ENABLE, SOUND_STATE_DISABLED
+                ;MOV DS:SOUND_ENABLE, SOUND_STATE_DISABLED
         RESET_BASE_ADDR:        
                 
                 MOV BL, DS:SOUND_INPUT_SEEK
@@ -1094,8 +1093,10 @@ SOUND_OUTPUT_CALLBACK   PROC FAR
                 MOV AL, DS:[SI]
                 MOV DX, PCS4
                 OUT DX, AL
-                
-                
+
+                ; RESTORE DATA_SEG
+                MOV AX, DATA_SEG
+                MOV DS, AX
 
                 
         EXIT_SOUND:     

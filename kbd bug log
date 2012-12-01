@@ -1,0 +1,33 @@
+kbd bug log
+removed Sound callback -no result, less sensitive
+
+increasing sensitivity
+
+Works fine for 2nd kbd
+works fine for 1st kbd
+
+placing sound callback again
+removed the sound_state_disable after one iter
+
+kbd input completely fails
+
+ADDED A RESTORE DS TO DATA_SEG IN THE END OF SOUND CALLBACK
+
+no result
+
+hypothesis: main loop never gets enough cycles to complete. keeps getting interrupted by sound
+
+idea: put kbd in timer, similar implementation as led. larger counter.
+
+problem: Make the kbd routine lighter, by iterating through ONE row in each call, instead of all
+
+FOR BOTH KBD AND KBD, GOT RID OF THE LOOP. ONLY PROCESSES ONE ROW IN EACH CALL
+
+disabled timer to check kbd alone
+
+decreased sensitivity
+
+initialized kbd_outputs properly
+
+
+
