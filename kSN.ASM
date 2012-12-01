@@ -21,6 +21,8 @@ MMCS EQU 0FFA6H
 PCS4 EQU 200H
 KBD_BUFFER_LEN	EQU		5
 KBD_BUFFER_LEN2	EQU		5
+KBD_DEBOUNCE    EQU     10
+KBD_DEBOUNCE2   EQU     10
 KBD_NEW EQU 01H
 KBD_STALE	EQU	02H
 
@@ -49,7 +51,10 @@ CASHIER_DISPLAY_PRICE	EQU 6
 CASHIER_EOT_PROMPT	EQU 7
 CASHIER_EOT	EQU	8
 SOUND_INPUT_LEN EQU 36
-TIMER_COUNTER_LEN   EQU 24
+TIMER_CHOOSE_KBD_1 EQU 1
+TIMER_CHOOSE_KBD_2 EQU 2
+TIMER_COUNTER_LED_LEN   EQU 24
+TIMER_COUNTER_KBD_LEN   EQU 48
 SOUND_STATE_ENABLED EQU 0
 SOUND_STATE_DISABLED EQU 1
 STACK_SEG	SEGMENT
@@ -83,8 +88,9 @@ DATA_SEG	SEGMENT
         KBD_ROW_COUNTER2 DB     0H
         KBD_OUTPUT2      DB     0F7H
         KBD_INPUT2	DB	0H
-    TIMER_COUNTER   DB  0H
-	
+    TIMER_COUNTER_LED   DB  0H
+    TIMER_COUNTER_KBD DW 0H
+    TIMER_CHOOSE_KBD    DB TIMER_CHOOSE_KBD_1
 ;=========================================================================
 ;Port B of the 8255 is used as the input port for the keybad
 ;Port C is used as the output and grounds the rows one by one
@@ -184,13 +190,13 @@ MOV AL, 82H       ;mode 0, A - out, B-in ;changed value of CW from 82H
 
    
 ;code
- ;call set_timer2
+ call set_timer2
                 STI
 
 NEXT:
 
-	CALL FAR PTR KEYBOARD
-        call far ptr keyboard2
+;	CALL FAR PTR KEYBOARD
+ ;       call far ptr keyboard2
   ;    CALL FAR PTR CASHIER_STATE_M 
 	
         
@@ -580,7 +586,7 @@ ADD_TO_BUFFER:
                 MOV DS:KBD_BUFFER[SI],AL
                 INC DS:KBD_BUFFER_SEEK
 
-		mov cx, 5000
+		mov cx, KBD_DEBOUNCE
 Debounce:
 		nop
 		loop debounce
@@ -734,7 +740,7 @@ ADD_TO_BUFFER2:
                 MOV DS:KBD_BUFFER2[SI],AL
                 INC DS:KBD_BUFFER_SEEK2
 
-		mov cx, 5000
+		mov cx, KBD_DEBOUNCE2
 Debounce2:
 		nop
 		loop debounce2
@@ -803,21 +809,40 @@ TIMER2_ACTION	PROC	FAR
 		PUSH	CX
 
 		
-        INC DS:TIMER_COUNTER
-        CMP DS:TIMER_COUNTER, TIMER_COUNTER_LEN
-        JNE SKIP_RESET
-        MOV DS:TIMER_COUNTER,0
-        CALL FAR PTR DISPLAY_LED            
+        INC DS:TIMER_COUNTER_LED
+        INC DS:TIMER_COUNTER_KBD
+
+        CMP DS:TIMER_COUNTER_KBD, TIMER_COUNTER_KBD_LEN
+        JE CHOOSE_KBD
+        CMP DS:TIMER_COUNTER_LED, TIMER_COUNTER_LED_LEN
+        JE EXEC_LED
+EXEC_SOUND:
+        CALL FAR PTR SOUND_OUTPUT_CALLBACK
         JMP EXIT_TIMER_ACTION
 
-SKIP_RESET:
-        CMP DS:SOUND_ENABLE, SOUND_STATE_ENABLED
-        JNE EXIT_TIMER_ACTION
-      ;CALL FAR PTR SOUND_OUTPUT_CALLBACK
+EXEC_LED:
+        MOV DS:TIMER_COUNTER_LED, 0
+        CALL FAR PTR DISPLAY_LED
+        JMP EXIT_TIMER_ACTION
 
+CHOOSE_KBD:
+        MOV DS:TIMER_COUNTER_KBD, 0
+
+        CMP DS:TIMER_CHOOSE_KBD, TIMER_CHOOSE_KBD_1
+        JE EXEC_KB1
+        CALL FAR PTR KEYBOARD2
+        MOV DS:TIMER_CHOOSE_KBD, TIMER_CHOOSE_KBD_1
+        JMP EXIT_TIMER_ACTION
+
+EXEC_KB1:
+
+        CALL FAR PTR KEYBOARD
+        ;mov al, 'k'
+        ;call far ptr print_char
+        MOV DS:TIMER_CHOOSE_KBD, TIMER_CHOOSE_KBD_2
+        JMP EXIT_TIMER_ACTION
 
 EXIT_TIMER_ACTION:
-
 		POP	CX
 		POP	BX
 		POP	DS

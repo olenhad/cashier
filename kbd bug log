@@ -29,5 +29,25 @@ decreased sensitivity
 
 initialized kbd_outputs properly
 
+kbds working fine
+
+renabled timer
+
+kbd inputs read fine, at unpredictable timings
+
+hacky idea: decrease debounce value in kbd
+
+DECREASED KBD DEBOUNCE
+
+cHANGED TIMER ROUTINE TO ACCOMODATE KBD
+EXPECT: KBD INPUT, LED WORKING, SOUND PLAYING CONT
+
+
+removed the debouncing in the two keyboard processes
+added a print_char 
+
+kbd is NOT being intercepted
+
+
 
 
