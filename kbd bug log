@@ -48,6 +48,8 @@ added a print_char
 
 kbd is NOT being intercepted
 
+testinng state_m
 
+expect: barcode,, quantuty, price, sound
 
 
