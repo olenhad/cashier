@@ -79,6 +79,13 @@ display price led is cleared too fast
 
 fails on 2nd interation
 
+sound plays after quantity is confirmed in 2nd iter
+
+Note: make leds different for ready and eot
+
+make_packet doesn't update the packet with new data
+
+discovered: barcode buffer not updated
 
 
 
