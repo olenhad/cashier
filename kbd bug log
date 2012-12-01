@@ -53,3 +53,20 @@ testinng state_m
 expect: barcode,, quantuty, price, sound
 
 
+YAY
+
+to do:
+
+check the network stale/new NOT
+
+clear the leds after barcode and quantity 
+
+clean first led bug done
+
+end of transaction state
+
+generate bill
+
+
+
+
