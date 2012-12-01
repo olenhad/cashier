@@ -63,9 +63,9 @@ clear the leds after barcode and quantity DONE
 
 clean first led bug DONE    
 
-end of transaction state
+end of transaction state   done
 
-generate bill
+generate bill       done
 
 
 expect:
@@ -73,6 +73,16 @@ only SELECTED after q, else 'N'
 
 
 net state restoration is buggy
+
+
+display price led is cleared too fast
+
+fails on 2nd interation
+
+
+
+
+
 
 
 
