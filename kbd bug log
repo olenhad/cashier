@@ -88,9 +88,26 @@ make_packet doesn't update the packet with new data
 discovered: barcode buffer not updated
 
 new bug: writing ```ab does not get a response in 2nd iter
+Bug above fixed mysteriously. Could be a one off.
 
+Both EOT, and add to transaction working BEAUTIFULLY
 
+TODO:
 
+Resetting Buffers
+
+Polling packets breaks it?
+
+-> not own address
+
+-> when cashier is not ready
+
+change led clear
+
+-----------------
+ - Add sound for total bill
+
+ - Some way to distinguish the sounds for barcode, price and q
 
 
 
