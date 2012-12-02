@@ -102,7 +102,7 @@ Polling packets breaks it?  PASSED
 
 -> when cashier is not ready
 
-change led clear    
+change led clear    DONE
 
 -----------------
  - Add sound for total bill
@@ -124,6 +124,15 @@ quantity: working normal
 
 
 barcode:
+
+
+
+TODO:
+
+- speak out total bill
+
+- network py script
+
 
 
 
