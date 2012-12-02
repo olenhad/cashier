@@ -129,9 +129,16 @@ barcode:
 
 TODO:
 
-- speak out total bill
+- speak out total bill DONE
 
-- network py script
+- network py script DONE
+
+- clear led when sound is done
+
+ - two '`'s fucked the net. investigate
+
+- handle decimal point
+
 
 
 
