@@ -140,6 +140,11 @@ TODO:
 - handle decimal point
 
 
+Decimal point chklist:
+- PRICE_LEN to 7
+- Find the ledcode for the .
+- ADD_LED_BUFFER add a condition for '.'
+- the sound..
 
 
 
