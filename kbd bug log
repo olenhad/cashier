@@ -94,11 +94,11 @@ Both EOT, and add to transaction working BEAUTIFULLY
 
 TODO:
 
-Resetting Buffers
+Resetting Buffers   Partial pass. kinda fails on 3rd new transaction. 
 
 Polling packets breaks it?
 
--> not own address
+-> not own address     
 
 -> when cashier is not ready
 
@@ -108,6 +108,15 @@ change led clear
  - Add sound for total bill
 
  - Some way to distinguish the sounds for barcode, price and q
+
+
+ obs:
+ Offset of 1 in barcode buffer
+
+ Sound playing some other shit after 1st iteration.
+ 
+
+
 
 
 
