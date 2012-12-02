@@ -96,13 +96,13 @@ TODO:
 
 Resetting Buffers   PASSED
 
-Polling packets breaks it?
+Polling packets breaks it?  PASSED
 
 -> not own address     
 
 -> when cashier is not ready
 
-change led clear
+change led clear    
 
 -----------------
  - Add sound for total bill
@@ -121,6 +121,10 @@ FIXED sound offset bug
 ready: returned packet
 barcode: returned nothing
 quantity: working normal
+
+
+barcode:
+
 
 
 
