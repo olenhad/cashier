@@ -94,7 +94,7 @@ Both EOT, and add to transaction working BEAUTIFULLY
 
 TODO:
 
-Resetting Buffers   Partial pass. kinda fails on 3rd new transaction. 
+Resetting Buffers   PASSED
 
 Polling packets breaks it?
 
@@ -114,7 +114,17 @@ change led clear
  Offset of 1 in barcode buffer
 
  Sound playing some other shit after 1st iteration.
- 
+
+FIXED sound offset bug
+
+
+ready: returned packet
+barcode: returned nothing
+quantity: working normal
+
+
+
+
 
 
 
