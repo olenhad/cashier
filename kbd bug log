@@ -146,6 +146,14 @@ Decimal point chklist:
 - ADD_LED_BUFFER add a condition for '.'
 - the sound..
 
+TODO:
+- Error checking
+- password login
+
+
+
+
+
 
 
 
